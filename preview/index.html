@@ -1,0 +1,4007 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Medicine Reminder • Smart Dose Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Medicine Reminder">
+  <meta name="theme-color" content="#0F766E">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='25' fill='%230D9488'/><path d='M35 50h30M50 35v30' stroke='white' stroke-width='10' stroke-linecap='round'/></svg>">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='25' fill='%230D9488'/><path d='M35 50h30M50 35v30' stroke='white' stroke-width='10' stroke-linecap='round'/></svg>">
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary: #0D9488;
+      --primary-dark: #0F766E;
+      --primary-light: #CCFBF1;
+      --primary-glow: rgba(13, 148, 136, 0.25);
+      --surface: #FFFFFF;
+      --surface-subtle: #F8FAFC;
+      --border: #E2E8F0;
+      --text-main: #0F172A;
+      --text-muted: #64748B;
+      --success: #10B981;
+      --success-light: #D1FAE5;
+      --warning: #F59E0B;
+      --warning-light: #FEF3C7;
+      --danger: #EF4444;
+      --danger-light: #FEE2E2;
+      --purple: #8B5CF6;
+      --purple-light: #EDE9FE;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: #0F172A;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+    }
+
+    .app-viewport {
+      width: 100%;
+      max-width: 480px;
+      min-height: 100vh;
+      background: var(--surface-subtle);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+      padding-bottom: 90px;
+    }
+
+    /* iOS Header */
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: max(14px, env(safe-area-inset-top)) 20px 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #FFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      box-shadow: 0 4px 10px var(--primary-glow);
+    }
+
+    .brand-text h1 {
+      font-size: 19px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.5px;
+    }
+
+    .brand-text p {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .action-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #FFF;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .action-btn:active {
+      transform: scale(0.92);
+      background: var(--primary-light);
+      color: var(--primary-dark);
+    }
+
+    .lang-toggle-btn {
+      padding: 6px 10px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #FFF;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    /* Profil Seçici (Header Sol Üst) */
+    .profile-selector-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: #FFF;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .profile-selector-btn:active {
+      transform: scale(0.95);
+      background: var(--surface-subtle);
+    }
+
+    .profile-avatar-mini {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #FFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .profile-name-mini {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+      max-width: 90px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* Klinik Uyarı Kutusu */
+    .clinical-alert-box {
+      background: #FFFBEB;
+      border: 1.5px solid #FCD34D;
+      border-radius: 12px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .clinical-alert-box i {
+      color: #D97706;
+      font-size: 16px;
+      margin-top: 2px;
+    }
+
+    .clinical-alert-text h6 {
+      font-size: 12px;
+      font-weight: 800;
+      color: #92400E;
+      margin-bottom: 2px;
+    }
+
+    .clinical-alert-text p {
+      font-size: 11px;
+      color: #B45309;
+      line-height: 1.4;
+    }
+
+    /* Profil Seçim Modal Menüsü */
+    .profile-sheet-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 120;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .profile-sheet-overlay.active {
+      display: flex;
+    }
+
+    .profile-sheet-box {
+      width: 100%;
+      max-width: 480px;
+      background: #FFF;
+      border-radius: 28px 28px 0 0;
+      padding: 24px 20px max(24px, env(safe-area-inset-bottom)) 20px;
+      animation: modalSlide 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .btn-delete-prof {
+      background: transparent;
+      border: none;
+      color: #94A3B8;
+      font-size: 14px;
+      cursor: pointer;
+      padding: 6px 8px;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .btn-delete-prof:hover {
+      background: #FEE2E2;
+      color: #EF4444;
+    }
+
+    .profile-card-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1.5px solid var(--border);
+      background: #FFF;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .profile-card-item.active {
+      border-color: var(--primary);
+      background: var(--primary-light);
+    }
+
+    .profile-card-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .profile-large-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: #FFF;
+    }
+
+    /* Main Container */
+    .main-content {
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Date Tracker Strip */
+    .date-strip {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #FFF;
+      padding: 12px 16px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+    }
+
+    .today-meta h2 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .today-meta p {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .badge-date {
+      background: var(--primary-light);
+      color: var(--primary-dark);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 10px;
+    }
+
+    /* Progress Health Card */
+    .progress-hero {
+      background: linear-gradient(135deg, #0F766E, #0D9488);
+      border-radius: 20px;
+      padding: 18px 20px;
+      color: #FFF;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 10px 25px -5px var(--primary-glow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .progress-hero::after {
+      content: '';
+      position: absolute;
+      right: -20px;
+      bottom: -30px;
+      width: 120px;
+      height: 120px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 50%;
+    }
+
+    .hero-info h3 {
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .hero-info p {
+      font-size: 13px;
+      color: #CCFBF1;
+      max-width: 220px;
+    }
+
+    .hero-stats {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.18);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border: 3px solid #CCFBF1;
+    }
+
+    .hero-stats span {
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .hero-stats small {
+      font-size: 9px;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    /* Filter Tabs */
+    .tabs-bar {
+      display: flex;
+      gap: 8px;
+      background: #E2E8F0;
+      padding: 4px;
+      border-radius: 14px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+      background: #FFF;
+      color: var(--text-main);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    }
+
+    /* Medicine Cards */
+    .cards-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .med-card {
+      background: #FFF;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+      position: relative;
+    }
+
+    .med-card.done {
+      background: #F8FAFC;
+      border-color: #F1F5F9;
+      opacity: 0.72;
+    }
+
+    .med-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex: 1;
+    }
+
+    .type-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .avatar-tablet { background: var(--primary-light); color: var(--primary-dark); }
+    .avatar-syrup { background: var(--purple-light); color: var(--purple); }
+    .avatar-injection { background: var(--warning-light); color: var(--warning); }
+    .avatar-drops { background: #E0F2FE; color: #0284C7; }
+    .avatar-spray { background: #FCE7F3; color: #BE185D; }
+
+    .med-info h4 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 2px;
+    }
+
+    .med-card.done .med-info h4 {
+      text-decoration: line-through;
+      color: #94A3B8;
+    }
+
+    .med-dosage {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .tags-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .pill-tag {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .tag-time { background: #F1F5F9; color: #334155; }
+    .tag-freq-1 { background: var(--primary-light); color: var(--primary-dark); }
+    .tag-freq-2 { background: var(--purple-light); color: var(--purple); }
+    .tag-freq-7 { background: var(--warning-light); color: var(--warning); }
+
+    .tag-stock {
+      background: #F1F5F9;
+      color: #475569;
+    }
+
+    .tag-stock.low {
+      background: var(--danger-light);
+      color: var(--danger);
+      font-weight: 800;
+    }
+
+    .med-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-check {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 2px solid #CBD5E1;
+      background: #FFF;
+      color: #CBD5E1;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .btn-check.checked {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #FFF;
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px var(--primary-glow);
+    }
+
+    .btn-delete {
+      border: none;
+      background: none;
+      color: #CBD5E1;
+      font-size: 15px;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 50%;
+    }
+
+    .btn-delete:active {
+      color: var(--danger);
+      background: var(--danger-light);
+    }
+
+    /* Floating Bar */
+    .floating-fab {
+      position: fixed;
+      bottom: max(20px, env(safe-area-inset-bottom));
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 40px);
+      max-width: 440px;
+      z-index: 50;
+    }
+
+    .fab-btn {
+      width: 100%;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #FFF;
+      border: none;
+      border-radius: 16px;
+      padding: 16px;
+      font-size: 16px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 8px 20px var(--primary-glow);
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+
+    .fab-btn:active {
+      transform: scale(0.97);
+    }
+
+    /* Modal Form */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 100;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .modal-backdrop.active {
+      display: flex;
+    }
+
+    .modal-box {
+      width: 100%;
+      max-width: 480px;
+      background: #FFF;
+      border-radius: 28px 28px 0 0;
+      padding: 24px 22px max(24px, env(safe-area-inset-bottom)) 22px;
+      max-height: 92vh;
+      overflow-y: auto;
+      animation: modalSlide 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes modalSlide {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .modal-head h3 {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .close-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      background: #F1F5F9;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    .form-row {
+      margin-bottom: 16px;
+    }
+
+    .form-lbl {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      color: #334155;
+      margin-bottom: 6px;
+    }
+
+    .inp {
+      width: 100%;
+      height: 48px;
+      min-height: 48px;
+      max-height: 48px;
+      padding: 0 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-main);
+      outline: none;
+      background: #FFF;
+      box-sizing: border-box;
+      -webkit-appearance: none;
+      appearance: none;
+      display: flex;
+      align-items: center;
+      transition: border-color 0.2s;
+    }
+
+    .inp:focus {
+      border-color: var(--primary);
+    }
+
+    /* İki Kolonlu Eşit Hizalı Satır (Saat ve Stok Düzenlemesi) */
+    .form-split-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      align-items: start;
+      margin-bottom: 16px;
+    }
+
+    .split-col {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .split-col .form-lbl {
+      height: 20px;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+    }
+
+    /* Type Picker Grid (5'li Tıbbi Form Butonları) */
+    .type-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+    }
+
+    .avatar-cream { background: #FFF7ED; color: #EA580C; }
+    .avatar-dressing { background: #FEF3C7; color: #D97706; }
+
+    .btn-edit {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1.5px solid #E2E8F0;
+      background: #F8FAFC;
+      color: #64748B;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      flex-shrink: 0;
+    }
+
+    .btn-edit:hover, .btn-edit:active {
+      background: #F1F5F9;
+      color: var(--primary);
+      border-color: var(--primary);
+      transform: scale(1.06);
+    }
+
+    .type-opt {
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 9px 2px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .type-opt.selected {
+      border-color: var(--primary);
+      background: var(--primary-light);
+      color: var(--primary-dark);
+      font-weight: 700;
+    }
+
+    .type-opt i {
+      font-size: 18px;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .type-opt span {
+      font-size: 11px;
+    }
+
+    /* Yemek Durumu (Açlık / Tokluk) Seçici */
+    .meal-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .meal-opt {
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 9px 4px;
+      text-align: center;
+      cursor: pointer;
+      background: #FFF;
+      transition: all 0.2s;
+    }
+
+    .meal-opt i {
+      font-size: 15px;
+      display: block;
+      margin-bottom: 4px;
+      color: var(--text-muted);
+    }
+
+    .meal-opt span {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-main);
+      display: block;
+    }
+
+    .meal-opt.selected {
+      border-color: var(--primary);
+      background: var(--primary-light);
+    }
+
+    .meal-opt.selected i,
+    .meal-opt.selected span {
+      color: var(--primary-dark);
+      font-weight: 700;
+    }
+
+    /* Günün Vakti (Sabah / Öğlen / Akşam / Gece) Grid */
+    .timeofday-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .tod-opt {
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 9px 4px;
+      text-align: center;
+      cursor: pointer;
+      background: #FFF;
+      transition: all 0.2s;
+    }
+
+    .tod-opt i {
+      font-size: 15px;
+      display: block;
+      margin-bottom: 4px;
+      color: var(--text-muted);
+    }
+
+    .tod-opt span {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-main);
+      display: block;
+    }
+
+    .tod-opt.selected {
+      border-color: #F59E0B;
+      background: #FEF3C7;
+    }
+
+    .tod-opt.selected i,
+    .tod-opt.selected span {
+      color: #B45309;
+      font-weight: 700;
+    }
+
+    /* Vakit Renkli Rozetleri */
+    .tag-tod-morning { background: #FEF3C7; color: #B45309; font-weight: 700; }
+    .tag-tod-noon { background: #E0F2FE; color: #0369A1; font-weight: 700; }
+    .tag-tod-evening { background: #FFEDD5; color: #C2410C; font-weight: 700; }
+    .tag-tod-night { background: #EEF2FF; color: #4338CA; font-weight: 700; }
+
+    /* Dinamik Doz Çipleri (İlaç Türüne Özel) */
+    .dosage-chip-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .dosage-chip {
+      padding: 8px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      background: #FFF;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-main);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .dosage-chip:active {
+      transform: scale(0.95);
+    }
+
+    .dosage-chip.selected {
+      border-color: var(--primary);
+      background: var(--primary-light);
+      color: var(--primary-dark);
+      box-shadow: 0 2px 6px var(--primary-glow);
+    }
+
+    /* Frequency Grid & Dinamik Gün Sayacı (Custom Stepper) */
+    .freq-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .freq-opt {
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 4px;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      background: #FFF;
+      transition: all 0.2s;
+    }
+
+    .freq-opt.selected {
+      border-color: var(--purple);
+      background: var(--purple-light);
+      color: var(--purple);
+      font-weight: 700;
+    }
+
+    /* Özel Aralık Sayaç Kutusu */
+    .custom-stepper-box {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .stepper-info h5 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 2px;
+    }
+
+    .stepper-info p {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .stepper-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .stepper-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      background: #FFF;
+      color: var(--text-main);
+      font-size: 16px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .stepper-btn:active {
+      transform: scale(0.92);
+      background: var(--purple-light);
+      color: var(--purple);
+    }
+
+    .stepper-val-display {
+      min-width: 44px;
+      text-align: center;
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--purple);
+      background: #FFF;
+      border: 1.5px solid var(--purple-light);
+      padding: 6px 8px;
+      border-radius: 8px;
+    }
+
+    .submit-btn {
+      width: 100%;
+      background: var(--primary);
+      color: #FFF;
+      border: none;
+      border-radius: 14px;
+      padding: 16px;
+      font-size: 16px;
+      font-weight: 800;
+      margin-top: 12px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px var(--primary-glow);
+    }
+
+    /* Dynamic Island Banner */
+    .island-banner {
+      position: fixed;
+      top: max(12px, env(safe-area-inset-top));
+      left: 50%;
+      transform: translateX(-50%) translateY(-150%);
+      width: calc(100% - 24px);
+      max-width: 440px;
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      color: #FFF;
+      border-radius: 24px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+      z-index: 200;
+      transition: transform 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    }
+
+    .island-banner.visible {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .island-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      background: var(--primary);
+      color: #FFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .island-body h5 {
+      font-size: 14px;
+      font-weight: 800;
+      margin-bottom: 2px;
+    }
+
+    .island-body p {
+      font-size: 12px;
+      color: #94A3B8;
+    }
+
+    .toast-box {
+      position: fixed;
+      bottom: 86px;
+      left: 50%;
+      transform: translateX(-50%) translateY(50px);
+      background: #0F172A;
+      color: #FFF;
+      padding: 10px 18px;
+      border-radius: 30px;
+      font-size: 13px;
+      font-weight: 600;
+      opacity: 0;
+      transition: all 0.25s;
+      z-index: 150;
+      white-space: nowrap;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .toast-box.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+  
+    /* Pixel-Perfect Term Project Screenshot Mode (No Clipping, Full Mobile Cards) */
+    body.screenshot-mode {
+      background: #0B132B !important;
+      padding: 24px 16px !important;
+      min-height: 100vh !important;
+      height: auto !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: flex-start !important;
+    }
+    body.screenshot-mode .app-viewport {
+      box-shadow: 0 25px 60px -15px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.15) !important;
+      border-radius: 36px !important;
+      margin: 0 auto !important;
+      min-height: auto !important;
+      height: auto !important;
+      padding-bottom: 28px !important;
+      overflow: hidden !important;
+      width: 100% !important;
+      max-width: 414px !important;
+      background: #F8FAFC !important;
+    }
+    body.screenshot-mode .floating-fab {
+      position: static !important;
+      margin: 18px 18px 0 18px !important;
+    }
+    body.screenshot-mode .modal-backdrop {
+      position: static !important;
+      display: flex !important;
+      align-items: flex-start !important;
+      justify-content: center !important;
+      background: transparent !important;
+      backdrop-filter: none !important;
+      padding: 0 !important;
+      height: auto !important;
+      min-height: auto !important;
+    }
+    body.screenshot-mode .modal-box {
+      position: relative !important;
+      bottom: auto !important;
+      max-height: none !important;
+      height: auto !important;
+      border-radius: 36px !important;
+      box-shadow: 0 25px 60px -15px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.15) !important;
+      overflow: visible !important;
+      margin: 0 auto !important;
+      width: 100% !important;
+      max-width: 414px !important;
+      padding: 26px 20px 28px 20px !important;
+      background: #FFFFFF !important;
+    }
+    body.screenshot-mode .profile-sheet-overlay {
+      position: static !important;
+      display: flex !important;
+      align-items: flex-start !important;
+      justify-content: center !important;
+      background: transparent !important;
+      backdrop-filter: none !important;
+      padding: 0 !important;
+      height: auto !important;
+    }
+    body.screenshot-mode .profile-sheet-box {
+      position: relative !important;
+      bottom: auto !important;
+      max-height: none !important;
+      height: auto !important;
+      border-radius: 36px !important;
+      box-shadow: 0 25px 60px -15px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.15) !important;
+      overflow: visible !important;
+      margin: 0 auto !important;
+      width: 100% !important;
+      max-width: 414px !important;
+      padding: 26px 20px 28px 20px !important;
+      background: #FFFFFF !important;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="app-viewport">
+    <!-- Header -->
+    <!-- Header with Profile Switcher -->
+    <header class="app-header">
+      <div class="brand-group">
+        <button class="profile-selector-btn" onclick="openProfileSheet()" title="Profil Değiştir">
+          <div class="profile-avatar-mini" id="current-profile-avatar">A</div>
+          <span class="profile-name-mini" id="current-profile-name">Abdullah (Ben)</span>
+          <i class="fa-solid fa-chevron-down" style="font-size: 10px; color: var(--text-muted);"></i>
+        </button>
+      </div>
+      <div class="header-actions">
+        <button class="lang-toggle-btn" onclick="toggleLanguage()" title="Dili Değiştir / Change Language">
+          <span id="lang-flag">🇬🇧</span> <span id="lang-code">EN</span>
+        </button>
+        <button class="action-btn" id="btn-fast-alarm" onclick="testFastAlarm()" title="5 Sn Alarm Testi" id="btn-fast-alarm" style="color: var(--primary);">
+          <i class="fa-solid fa-stopwatch"></i>
+        </button>
+        <button class="action-btn" id="btn-sound-alert" onclick="triggerSoundNotification(currentLang === 'tr' ? 'İlaç Vakti: Örnek Doz' : 'Medicine Due: Sample Dose', currentLang === 'tr' ? '1 Tablet almayı unutmayın!' : 'Remember to take 1 Tablet!')" title="Ses ve Bildirim">
+          <i class="fa-regular fa-bell"></i>
+        </button>
+        <button class="action-btn" id="btn-refresh-app" onclick="renderApp()" title="Yenile">
+          <i class="fa-solid fa-rotate-right"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Date Strip -->
+      <section class="date-strip">
+        <div class="today-meta">
+          <h2 id="current-day-name">Bugün</h2>
+          <p id="current-date-str">Yükleniyor...</p>
+        </div>
+        <div class="badge-date">
+          <i class="fa-regular fa-calendar-check"></i> <span id="clock-display">--:--</span>
+        </div>
+      </section>
+
+      <!-- Health Progress Card -->
+      <section class="progress-hero">
+        <div class="hero-info">
+          <h3>Günün İlaç Uyumu</h3>
+          <p id="progress-summary">Planlanmış ilaçlar hesaplanıyor...</p>
+        </div>
+        <div class="hero-stats">
+          <span id="percent-val">0%</span>
+          <small>Başarı</small>
+        </div>
+      </section>
+
+      <!-- Filter Tabs -->
+      <nav class="tabs-bar">
+        <button class="tab-btn active" id="tab-today" onclick="switchTab('today')">Bugün</button>
+        <button class="tab-btn" id="tab-all" onclick="switchTab('all')">Tüm Planlar</button>
+        <button class="tab-btn" id="tab-history" onclick="switchTab('history')">
+          <i class="fa-solid fa-clock-rotate-left"></i> Geçmiş Günlük
+        </button>
+      </nav>
+
+      <!-- Medicine Cards Stack / History Log Container -->
+      <div class="cards-stack" id="medicine-stack">
+        <!-- İlaç kartları dinamik gelir -->
+      </div>
+    </main>
+
+    <!-- Floating Action Button -->
+    <div class="floating-fab">
+      <button class="fab-btn" onclick="openAddMedicineModal()">
+        <i class="fa-solid fa-plus"></i>
+        <span>Yeni İlaç Planı Ekle</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Add Medicine Modal Sheet -->
+  <div class="modal-backdrop" id="add-modal-backdrop">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h3>Yeni İlaç Planı</h3>
+        <button class="close-btn" onclick="closeAddMedicineModal()">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="add-med-form" onsubmit="saveMedicine(event)">
+        <!-- İlaç Tipi Seçimi -->
+        <div class="form-row">
+          <label class="form-lbl" id="lbl-type-title" style="display:flex; align-items:center; justify-content:space-between;">
+            <span id="txt-type-title-head">İlaç Türü</span>
+            <span id="type-lock-badge" style="display:none; font-size:11px; font-weight:700; color:#0369A1; background:#E0F2FE; border:1px solid #BAE6FD; padding:2px 8px; border-radius:8px; align-items:center;"></span>
+          </label>
+          <div class="type-grid">
+            <div class="type-opt selected" id="type-opt-tablet" onclick="selectType('tablet', this)">
+              <i class="fa-solid fa-pills"></i>
+              <span id="txt-type-tablet">Tablet</span>
+            </div>
+            <div class="type-opt" id="type-opt-syrup" onclick="selectType('syrup', this)">
+              <i class="fa-solid fa-prescription-bottle"></i>
+              <span id="txt-type-syrup">Şurup</span>
+            </div>
+            <div class="type-opt" id="type-opt-injection" onclick="selectType('injection', this)">
+              <i class="fa-solid fa-syringe"></i>
+              <span id="txt-type-injection">İğne</span>
+            </div>
+            <div class="type-opt" id="type-opt-drops" onclick="selectType('drops', this)">
+              <i class="fa-solid fa-droplet"></i>
+              <span id="txt-type-drops">Damla</span>
+            </div>
+            <div class="type-opt" id="type-opt-spray" onclick="selectType('spray', this)">
+              <i class="fa-solid fa-spray-can"></i>
+              <span id="txt-type-spray">Sprey</span>
+            </div>
+            <div class="type-opt" id="type-opt-cream" onclick="selectType('cream', this)">
+              <i class="fa-solid fa-pump-medical"></i>
+              <span id="txt-type-cream">Krem / Merhem</span>
+            </div>
+            <div class="type-opt" id="type-opt-dressing" onclick="selectType('dressing', this)">
+              <i class="fa-solid fa-bandage"></i>
+              <span id="txt-type-dressing">Pansuman</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- İlaç Adı -->
+        <div class="form-row">
+          <label class="form-lbl" id="lbl-name-title">İlaç Adı</label>
+          <input type="text" id="inp-name" class="inp" placeholder="Örn: Parol, D Vitamini, Glifor" required>
+        </div>
+
+        <!-- Yemek Durumu (Aç / Tok Karnına Butonları) -->
+        <div class="form-row">
+          <label class="form-lbl" id="lbl-meal-title">Açlık / Tokluk Durumu</label>
+          <div class="meal-grid">
+            <div class="meal-opt selected" id="meal-tok" onclick="selectMeal('tok')">
+              <i class="fa-solid fa-utensils"></i>
+              <span id="txt-meal-tok">Tok Karnına</span>
+            </div>
+            <div class="meal-opt" id="meal-ac" onclick="selectMeal('ac')">
+              <i class="fa-solid fa-bowl-food"></i>
+              <span id="txt-meal-ac">Aç Karnına</span>
+            </div>
+            <div class="meal-opt" id="meal-yemekle" onclick="selectMeal('yemekle')">
+              <i class="fa-solid fa-burger"></i>
+              <span id="txt-meal-yemekle">Yemekle</span>
+            </div>
+            <div class="meal-opt" id="meal-farketmez" onclick="selectMeal('farketmez')">
+              <i class="fa-solid fa-clock"></i>
+              <span id="txt-meal-farketmez">Farketmez</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Akıllı Dozaj Seçenekleri (İlaç Türüne Özel Butonlar) -->
+        <div class="form-row">
+          <label class="form-lbl" id="lbl-dosage-title">Dozaj Seçimi</label>
+          <div id="dynamic-dosage-panel">
+            <!-- Dinamik dozaj butonları javascript ile buraya gelir -->
+          </div>
+          <div style="margin-top: 8px;">
+            <input type="text" id="inp-dosage" class="inp" placeholder="Dozaj ve kullanım talimatı" required>
+          </div>
+          <!-- Akıllı Klinik Doktor Uyarısı (Otrivine 5 gün, Boğaz spreyi su yasağı, Astım puf çalkalama vb.) -->
+          <div id="clinical-warning-box" class="clinical-alert-box" style="display: none;">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <div class="clinical-alert-text">
+              <h6 id="alert-box-title">Klinik Doktor Uyarısı</h6>
+              <p id="alert-box-desc"></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tekrar Sıklığı (Dinamik Gün Seçici: 1, 2, 3, 4 veya İstenen Gün) -->
+        <div class="form-row">
+          <label class="form-lbl" id="lbl-freq-title">Tekrar Sıklığı (Periyot)</label>
+          <div class="freq-grid">
+            <div class="freq-opt selected" id="freq-chip-1" onclick="selectFreq(1)">
+              <span>Her Gün</span>
+            </div>
+            <div class="freq-opt" id="freq-chip-2" onclick="selectFreq(2)">
+              <span>2 Günde</span>
+            </div>
+            <div class="freq-opt" id="freq-chip-3" onclick="selectFreq(3)">
+              <span>3 Günde</span>
+            </div>
+            <div class="freq-opt" id="freq-chip-4" onclick="selectFreq(4)">
+              <span>4 Günde</span>
+            </div>
+          </div>
+
+          <!-- Canlı Gün Sayacı (Stepper) -->
+          <div class="custom-stepper-box">
+            <div class="stepper-info">
+              <h5 id="stepper-title-text">Aralık Belirleyin:</h5>
+              <p id="stepper-hint-text">Her gün düzenli alınacak</p>
+            </div>
+            <div class="stepper-controls">
+              <button type="button" class="stepper-btn" onclick="stepFrequency(-1)">
+                <i class="fa-solid fa-minus"></i>
+              </button>
+              <div class="stepper-val-display" id="stepper-val-display">1</div>
+              <button type="button" class="stepper-btn" onclick="stepFrequency(1)">
+                <i class="fa-solid fa-plus"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Kullanım Vakti (Sabah / Öğlen / Akşam / Gece - Çoklu Seçim) -->
+        <div class="form-row">
+          <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px;">
+            <label class="form-lbl" id="lbl-tod-title" style="margin-bottom: 0;">Günün Vakitleri (Çoklu Seçebilirsiniz)</label>
+            <small id="lbl-tod-sub" style="font-size: 11px; color: #64748B; font-weight: 600;">(Sabah, Öğle, Akşam, Gece)</small>
+          </div>
+          <div class="timeofday-grid">
+            <div class="tod-opt selected" id="tod-morning" onclick="toggleTimeOfDay('morning')">
+              <i class="fa-solid fa-cloud-sun"></i>
+              <span id="txt-tod-morning">Sabah</span>
+            </div>
+            <div class="tod-opt" id="tod-noon" onclick="toggleTimeOfDay('noon')">
+              <i class="fa-solid fa-sun"></i>
+              <span id="txt-tod-noon">Öğlen</span>
+            </div>
+            <div class="tod-opt" id="tod-evening" onclick="toggleTimeOfDay('evening')">
+              <i class="fa-solid fa-cloud-moon"></i>
+              <span id="txt-tod-evening">Akşam</span>
+            </div>
+            <div class="tod-opt" id="tod-night" onclick="toggleTimeOfDay('night')">
+              <i class="fa-solid fa-moon"></i>
+              <span id="txt-tod-night">Gece</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Seçilen Her Vakit İçin Özel Bağımsız Saat ve Alarm Ayarı -->
+        <div class="form-row">
+          <label class="form-lbl" id="lbl-alarms-title">Öğün Saatleri & Bağımsız Alarmlar</label>
+          <div id="tod-times-container" style="display: flex; flex-direction: column; gap: 8px;">
+            <!-- Dinamik saat girişleri buraya javascript ile gelecek -->
+          </div>
+        </div>
+
+        <!-- Toplam Kutu Stoğu -->
+        <div class="form-row">
+          <label class="form-lbl" id="lbl-stock-text">Toplam Kutu Stoğu (Kalan Adet)</label>
+          <input type="number" id="inp-stock" class="inp" placeholder="Örn: 30" value="30" min="1" required>
+        </div>
+
+        <button type="submit" class="submit-btn" id="btn-submit-text">
+          <i class="fa-solid fa-check"></i> Planı Kaydet & Bildirim Kur
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Profil Seçim ve Yönetim Modal Sheet -->
+  <div class="profile-sheet-overlay" id="profile-sheet-overlay">
+    <div class="profile-sheet-box">
+      <div class="modal-head">
+        <h3 id="txt-profile-modal-title">Aile Profilleri</h3>
+        <button class="close-btn" onclick="closeProfileSheet()">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div id="profiles-list-container">
+        <!-- Profiller buraya dinamik listelenecek -->
+      </div>
+      
+      <button class="fab-btn" onclick="showAddProfileForm()" id="btn-show-add-prof" style="margin-top: 14px; border-radius: 14px; padding: 13px; font-size: 14px;">
+        <i class="fa-solid fa-user-plus"></i>
+        <span id="txt-add-profile-btn">+ Yeni Aile Üyesi Ekle</span>
+      </button>
+
+      <div id="add-profile-form-area" style="display: none; margin-top: 14px; padding: 14px; background: #F8FAFC; border-radius: 14px; border: 1.5px solid var(--border);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <h4 id="lbl-new-prof-title" style="font-size: 13px; font-weight: 800; color: #0F172A; margin: 0;">Aile Üyesi Bilgileri</h4>
+          <span id="lbl-prof-badge-clinic" style="font-size: 10px; font-weight: 700; color: #059669; background: #D1FAE5; padding: 2px 6px; border-radius: 6px;">🩺 Klinik Profil</span>
+        </div>
+
+        <!-- İsim (Zorunlu) -->
+        <div style="margin-bottom: 8px;">
+          <label style="font-size: 11px; font-weight: 700; color: #475569; display: block; margin-bottom: 4px;" id="lbl-prof-name-field">Adı Soyadı / Takma Ad (Zorunlu):</label>
+          <input type="text" id="inp-new-profile-name" class="inp" placeholder="Örn: Can (Çocuk), Fatma (Anne)" style="margin-bottom: 0;">
+        </div>
+
+        <!-- Yakınlık (İsteğe Bağlı) -->
+        <div style="margin-bottom: 10px;">
+          <label style="font-size: 11px; font-weight: 700; color: #475569; display: block; margin-bottom: 4px;" id="lbl-prof-rel-field">Yakınlık Derecesi (İsteğe Bağlı):</label>
+          <input type="text" id="inp-new-profile-rel" class="inp" placeholder="Örn: Çocuk, Ebeveyn, Eş, Kendim" style="margin-bottom: 0;">
+        </div>
+
+        <!-- Demografik & Klinik Bilgiler Bölümü (İsteğe Bağlı / Hekim Raporu İçin) -->
+        <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 10px; padding: 10px; margin-bottom: 12px;">
+          <div style="font-size: 10.5px; font-weight: 700; text-transform: uppercase; color: #64748B; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
+            <span id="lbl-prof-clinic-title"><i class="fa-solid fa-notes-medical" style="color: #0284C7; margin-right: 4px;"></i> Klinik Bilgiler (Hekim Raporu İçin)</span>
+            <span style="color: #94A3B8; font-weight: 600;" id="lbl-prof-optional-hint">İsteğe Bağlı</span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+            <div>
+              <label style="font-size: 10.5px; font-weight: 600; color: #475569; display: block; margin-bottom: 3px;" id="lbl-prof-age">Yaş:</label>
+              <input type="number" id="inp-new-profile-age" class="inp" placeholder="Örn: 8" style="padding: 7px 10px; font-size: 12px; margin: 0;" min="0" max="130">
+            </div>
+            <div>
+              <label style="font-size: 10.5px; font-weight: 600; color: #475569; display: block; margin-bottom: 3px;" id="lbl-prof-gender">Cinsiyet:</label>
+              <select id="sel-new-profile-gender" class="inp" style="padding: 7px 8px; font-size: 12px; margin: 0; background: white;">
+                <option value="male" id="opt-gender-male">Erkek</option>
+                <option value="female" id="opt-gender-female">Kadın</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <div>
+              <label style="font-size: 10.5px; font-weight: 600; color: #475569; display: block; margin-bottom: 3px;" id="lbl-prof-weight">Kilo (kg):</label>
+              <input type="number" id="inp-new-profile-weight" class="inp" placeholder="Örn: 26 kg" style="padding: 7px 10px; font-size: 12px; margin: 0;" min="1" max="300" step="0.5">
+            </div>
+            <div>
+              <label style="font-size: 10.5px; font-weight: 600; color: #475569; display: block; margin-bottom: 3px;" id="lbl-prof-height">Boy (cm):</label>
+              <input type="number" id="inp-new-profile-height" class="inp" placeholder="Örn: 128 cm" style="padding: 7px 10px; font-size: 12px; margin: 0;" min="30" max="250">
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 8px;">
+          <button type="button" class="submit-btn" id="btn-save-profile" style="padding: 11px; font-size: 13px; margin: 0; flex: 1;" onclick="saveProfileForm()">Kaydet</button>
+          <button type="button" class="stepper-btn" id="btn-cancel-profile" style="height: 44px; width: 80px; border-radius: 10px;" onclick="hideAddProfileForm()">İptal</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dynamic Island Alert Banner -->
+  <div class="island-banner" id="island-banner">
+    <div class="island-icon">
+      <i class="fa-solid fa-bell"></i>
+    </div>
+    <div class="island-body">
+      <h5 id="island-title">İlaç Hatırlatıcısı</h5>
+      <p id="island-desc">Vaktiniz gelen ilacı almayı unutmayın.</p>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast-box" id="toast-box">İşlem Yapıldı</div>
+
+  <script>
+    // Web Audio API Synthesizer (iOS ile %100 Uyumlu Alarm Çanı)
+    let audioCtx = null;
+    function initAudio() {
+      if (!audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) audioCtx = new AudioContext();
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+    document.addEventListener('touchstart', initAudio, { once: true });
+    document.addEventListener('click', initAudio, { once: true });
+
+    function playBell() {
+      initAudio();
+      if (!audioCtx) return;
+      const t = audioCtx.currentTime;
+      tone(587.33, t, 0.35);        // D5
+      tone(880.00, t + 0.2, 0.5);   // A5
+      tone(659.25, t + 0.5, 0.6);   // E5
+      tone(1046.50, t + 0.75, 0.9); // C6 (Zirve Ton)
+    }
+
+    function tone(freq, start, duration) {
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, start);
+        gain.gain.setValueAtTime(0.3, start);
+        gain.gain.exponentialRampToValueAtTime(0.001, start + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(start);
+        osc.stop(start + duration);
+      } catch (e) {}
+    }
+
+    // Modern Veritabanı, Akıllı Doz ve Geçmiş Günlük Mimarisi
+    const STORAGE_KEY = 'pillpulse_db_v9';
+    const HISTORY_KEY = 'pillpulse_history_v9';
+    const LANG_KEY = 'pillpulse_lang_v1';
+    const PROFILES_KEY = 'pillpulse_profiles_v6';
+    const ACTIVE_PROFILE_KEY = 'pillpulse_active_prof_v6';
+
+    let currentLang = localStorage.getItem(LANG_KEY) || 'tr';
+    let currentTab = 'today';
+    let selectedType = 'tablet';
+    let selectedFreq = 1; // 1: Her Gün, 2: 2 Günde Bir, 7: Haftada Bir
+    let selectedTimesOfDay = new Set(['morning']); // Çoklu Vakit Seçimi: Sabah, Öğle, Akşam, Gece
+    const todMeta = {
+      morning: { icon: 'fa-cloud-sun', label_tr: 'Sabah Alarmı', label_en: 'Morning Alarm', defTime: '08:30', color: '#B45309', bg: '#FEF3C7' },
+      noon: { icon: 'fa-sun', label_tr: 'Öğle Alarmı', label_en: 'Noon Alarm', defTime: '13:00', color: '#1D4ED8', bg: '#DBEAFE' },
+      evening: { icon: 'fa-cloud-moon', label_tr: 'Akşam Alarmı', label_en: 'Evening Alarm', defTime: '19:30', color: '#6D28D9', bg: '#EDE9FE' },
+      night: { icon: 'fa-moon', label_tr: 'Gece Alarmı', label_en: 'Night Alarm', defTime: '22:30', color: '#0F172A', bg: '#E2E8F0' }
+    };
+    let lastAlarmMinute = '';
+
+    // Çoklu Profil / Aile Modu (Multi-Profile & Family Caregiver - Bilingual TR/EN)
+    const defaultProfiles = [
+      { id: 'all', name_tr: 'Tüm Aile', name_en: 'All Family', relation_tr: 'Özet Görünüm', relation_en: 'Family Overview', avatar: '👥', color: '#0F766E' },
+      { id: 'p1', name_tr: 'Abdullah (Ben)', name_en: 'Abdullah (Me)', relation_tr: 'Kendim', relation_en: 'Myself', avatar: 'A', color: '#0D9488', age: 23, gender: 'male', weight: 74, height: 178 },
+      { id: 'p2', name_tr: 'Can (Çocuğum)', name_en: 'Can (My Child)', relation_tr: 'Çocuk', relation_en: 'Child', avatar: '👶', color: '#3B82F6', age: 8, gender: 'male', weight: 26, height: 128 },
+      { id: 'p3', name_tr: 'Fatma (Annem)', name_en: 'Fatma (Mother)', relation_tr: 'Ebeveyn', relation_en: 'Parent', avatar: '👵', color: '#EC4899', age: 58, gender: 'female', weight: 68, height: 162 }
+    ];
+
+    function getProfiles() {
+      const saved = localStorage.getItem(PROFILES_KEY);
+      if (!saved) {
+        localStorage.setItem(PROFILES_KEY, JSON.stringify(defaultProfiles));
+        return defaultProfiles;
+      }
+      return JSON.parse(saved);
+    }
+
+    function saveProfiles(profs) {
+      localStorage.setItem(PROFILES_KEY, JSON.stringify(profs));
+    }
+
+    let activeProfileId = localStorage.getItem(ACTIVE_PROFILE_KEY) || 'p1';
+
+    function getActiveProfile() {
+      const profs = getProfiles();
+      return profs.find(p => p.id === activeProfileId) || profs[1] || profs[0];
+    }
+
+            function getProfileDemographicsSummary(p) {
+      if (!p || p.id === 'all') return '';
+      const parts = [];
+      if (p.age) parts.push(currentLang === 'tr' ? `${p.age} Yaş` : `${p.age} Years Old`);
+      if (p.gender) {
+        if (p.gender === 'male') parts.push(currentLang === 'tr' ? 'Erkek' : 'Male');
+        else if (p.gender === 'female') parts.push(currentLang === 'tr' ? 'Kadın' : 'Female');
+      }
+      if (p.weight) parts.push(`${p.weight} kg`);
+      if (p.height) parts.push(`${p.height} cm`);
+      return parts.join(' • ');
+    }
+
+    function getProfileDemographicsBadge(p) {
+      const summary = getProfileDemographicsSummary(p);
+      if (!summary) return '';
+      return `<div style="font-size: 10.5px; font-weight: 600; color: #0284C7; margin-top: 1px;">🩺 ${escapeHtml(summary)}</div>`;
+    }
+
+    function getProfileDemographicsTag(p) {
+      if (!p || p.id === 'all') return '';
+      const parts = [];
+      if (p.age) parts.push(currentLang === 'tr' ? `${p.age} Yaş` : `${p.age} yrs`);
+      if (p.gender) {
+        if (p.gender === 'male') parts.push(currentLang === 'tr' ? 'Erkek' : 'Male');
+        else if (p.gender === 'female') parts.push(currentLang === 'tr' ? 'Kadın' : 'Female');
+      }
+      if (p.weight) parts.push(`${p.weight} kg`);
+      if (p.height) parts.push(`${p.height} cm`);
+      if (parts.length === 0) return '';
+      return ` • <span style="color:#0284C7; font-weight:600;">[${parts.join(' • ')}]</span>`;
+    }
+
+    function getProfDisplayName(p) {
+      if (!p) return '';
+      return currentLang === 'en' ? (p.name_en || p.name_tr || p.name || 'Member') : (p.name_tr || p.name || 'Üye');
+    }
+
+    function getProfDisplayRelation(p) {
+      if (!p) return '';
+      return currentLang === 'en' ? (p.relation_en || p.relation_tr || p.relation || 'Family Member') : (p.relation_tr || p.relation || 'Aile Üyesi');
+    }
+
+    function switchProfile(id) {
+      activeProfileId = id;
+      localStorage.setItem(ACTIVE_PROFILE_KEY, id);
+      closeProfileSheet();
+      renderApp();
+      const p = getActiveProfile();
+      const pName = getProfDisplayName(p);
+      showToast(currentLang === 'tr' ? `Aktif Profil: ${pName}` : `Active Profile: ${pName}`);
+    }
+
+    function openProfileSheet() {
+      renderProfilesList();
+      document.getElementById('profile-sheet-overlay').classList.add('active');
+    }
+
+    function closeProfileSheet() {
+      document.getElementById('profile-sheet-overlay').classList.remove('active');
+      hideAddProfileForm();
+    }
+
+    let editingProfileId = null;
+
+    function showAddProfileForm() {
+      editingProfileId = null;
+      document.getElementById('add-profile-form-area').style.display = 'block';
+      document.getElementById('btn-show-add-prof').style.display = 'none';
+      document.getElementById('inp-new-profile-name').value = '';
+      document.getElementById('inp-new-profile-rel').value = '';
+      document.getElementById('inp-new-profile-age').value = '';
+      document.getElementById('sel-new-profile-gender').value = 'male';
+      document.getElementById('inp-new-profile-weight').value = '';
+      document.getElementById('inp-new-profile-height').value = '';
+
+      const titleEl = document.getElementById('lbl-new-prof-title');
+      if (titleEl) titleEl.textContent = currentLang === 'tr' ? 'Yeni Aile Üyesi Ekle' : 'Add New Family Member';
+      const saveBtn = document.getElementById('btn-save-profile');
+      if (saveBtn) saveBtn.textContent = currentLang === 'tr' ? 'Kaydet' : 'Save';
+
+      document.getElementById('inp-new-profile-name').focus();
+    }
+
+    function openEditProfileForm(id) {
+      const profs = getProfiles();
+      const prof = profs.find(p => p.id === id);
+      if (!prof) return;
+
+      editingProfileId = id;
+      document.getElementById('add-profile-form-area').style.display = 'block';
+      document.getElementById('btn-show-add-prof').style.display = 'none';
+
+      document.getElementById('inp-new-profile-name').value = prof.name_tr || prof.name || '';
+      document.getElementById('inp-new-profile-rel').value = prof.relation_tr || prof.relation || '';
+      document.getElementById('inp-new-profile-age').value = prof.age || '';
+      document.getElementById('sel-new-profile-gender').value = (prof.gender === 'female' ? 'female' : 'male');
+      document.getElementById('inp-new-profile-weight').value = prof.weight || '';
+      document.getElementById('inp-new-profile-height').value = prof.height || '';
+
+      const titleEl = document.getElementById('lbl-new-prof-title');
+      if (titleEl) titleEl.textContent = currentLang === 'tr' ? `Profili Düzenle: ${getProfDisplayName(prof)}` : `Edit Profile: ${getProfDisplayName(prof)}`;
+      const saveBtn = document.getElementById('btn-save-profile');
+      if (saveBtn) saveBtn.textContent = currentLang === 'tr' ? 'Değişiklikleri Kaydet' : 'Save Changes';
+
+      document.getElementById('inp-new-profile-name').focus();
+    }
+
+    function hideAddProfileForm() {
+      document.getElementById('add-profile-form-area').style.display = 'none';
+      document.getElementById('btn-show-add-prof').style.display = 'flex';
+      document.getElementById('inp-new-profile-name').value = '';
+      document.getElementById('inp-new-profile-rel').value = '';
+      document.getElementById('inp-new-profile-age').value = '';
+      document.getElementById('sel-new-profile-gender').value = 'male';
+      document.getElementById('inp-new-profile-weight').value = '';
+      document.getElementById('inp-new-profile-height').value = '';
+      editingProfileId = null;
+    }
+
+    function saveProfileForm() {
+      const nameInp = document.getElementById('inp-new-profile-name').value.trim();
+      if (!nameInp) {
+        showToast(currentLang === 'tr' ? 'Lütfen üye adını giriniz.' : 'Please enter member name.');
+        return;
+      }
+      const relInp = document.getElementById('inp-new-profile-rel').value.trim();
+      const ageVal = parseInt(document.getElementById('inp-new-profile-age').value) || null;
+      const genderVal = document.getElementById('sel-new-profile-gender').value === 'female' ? 'female' : 'male';
+      const weightVal = parseFloat(document.getElementById('inp-new-profile-weight').value) || null;
+      const heightVal = parseInt(document.getElementById('inp-new-profile-height').value) || null;
+
+      const profs = getProfiles();
+
+      if (editingProfileId !== null) {
+        // Düzenleme Modu
+        const prof = profs.find(p => p.id === editingProfileId);
+        if (prof) {
+          prof.name = nameInp;
+          prof.name_tr = nameInp;
+          prof.name_en = nameInp;
+          if (relInp) {
+            prof.relation = relInp;
+            prof.relation_tr = relInp;
+            prof.relation_en = relInp;
+          }
+          prof.age = ageVal;
+          prof.gender = genderVal;
+          prof.weight = weightVal;
+          prof.height = heightVal;
+
+          saveProfiles(profs);
+          hideAddProfileForm();
+          renderProfilesList();
+          renderApp();
+          showToast(currentLang === 'tr' ? `"${nameInp}" profili güncellendi!` : `Profile "${nameInp}" updated!`);
+          return;
+        }
+      }
+
+      // Yeni Üye Ekleme
+      const newId = 'p_' + Date.now();
+      const colors = ['#8B5CF6', '#F59E0B', '#10B981', '#6366F1', '#EC4899', '#14B8A6'];
+      const randomColor = colors[profs.length % colors.length];
+      const defaultRel = currentLang === 'tr' ? 'Aile Üyesi' : 'Family Member';
+      const newProf = {
+        id: newId,
+        name: nameInp,
+        name_tr: nameInp,
+        name_en: nameInp,
+        relation: relInp || defaultRel,
+        relation_tr: relInp || 'Aile Üyesi',
+        relation_en: relInp || 'Family Member',
+        avatar: nameInp.charAt(0).toUpperCase(),
+        color: randomColor,
+        age: ageVal,
+        gender: genderVal,
+        weight: weightVal,
+        height: heightVal
+      };
+      profs.push(newProf);
+      saveProfiles(profs);
+      hideAddProfileForm();
+      renderProfilesList();
+      switchProfile(newId);
+      showToast(currentLang === 'tr' ? `${nameInp} profili oluşturuldu!` : `Profile ${nameInp} created!`);
+    }
+
+    function saveNewProfile() {
+      saveProfileForm();
+    }
+
+    function deleteProfile(id, name) {
+      if (id === 'all' || id === 'p1') {
+        showToast(currentLang === 'tr' ? 'Ana profil silinemez.' : 'Primary profile cannot be deleted.');
+        return;
+      }
+      const confirmMsg = currentLang === 'tr'
+        ? `\"${name}\" profilini ve bu profile ait tüm ilaç planlarını silmek istediğinize emin misiniz?`
+        : `Are you sure you want to delete profile \"${name}\" and all associated medication plans?`;
+
+      if (confirm(confirmMsg)) {
+        let profs = getProfiles();
+        profs = profs.filter(p => p.id !== id);
+        saveProfiles(profs);
+
+        // İlaç ve geçmiş kayıtlarını ilişkisel olarak temizle (Cascade Delete)
+        let pills = getPills();
+        pills = pills.filter(p => (p.profileId || 'p1') !== id);
+        savePills(pills);
+
+        let hist = getHistory();
+        hist = hist.filter(h => (h.profileId || 'p1') !== id);
+        saveHistory(hist);
+
+        // Eğer silinen profil aktif profil ise ana profile (p1) geri dön
+        if (activeProfileId === id) {
+          activeProfileId = 'p1';
+          localStorage.setItem(ACTIVE_PROFILE_KEY, 'p1');
+        }
+
+        renderProfilesList();
+        renderApp();
+        showToast(currentLang === 'tr' ? `\"${name}\" profili silindi.` : `Profile \"${name}\" deleted.`);
+      }
+    }
+
+    function renderProfilesList() {
+      const container = document.getElementById('profiles-list-container');
+      if (!container) return;
+      const profs = getProfiles();
+      const allPills = getPills();
+
+      // Modal başlık ve butonlarını seçili dile göre güncelle
+      const modalTitle = document.getElementById('txt-profile-modal-title');
+      if (modalTitle) modalTitle.textContent = currentLang === 'tr' ? 'Aile Profilleri' : 'Family Profiles';
+      const addProfBtn = document.getElementById('txt-add-profile-btn');
+      if (addProfBtn) addProfBtn.textContent = currentLang === 'tr' ? '+ Yeni Aile Üyesi Ekle' : '+ Add Family Member';
+      const newProfTitle = document.getElementById('lbl-new-prof-title');
+      if (newProfTitle) {
+        if (editingProfileId !== null) {
+          const profsAll = getProfiles();
+          const pEdit = profsAll.find(p => p.id === editingProfileId);
+          newProfTitle.textContent = currentLang === 'tr' ? `Profili Düzenle: ${pEdit ? getProfDisplayName(pEdit) : ''}` : `Edit Profile: ${pEdit ? getProfDisplayName(pEdit) : ''}`;
+        } else {
+          newProfTitle.textContent = currentLang === 'tr' ? 'Yeni Aile Üyesi Ekle' : 'Add New Family Member';
+        }
+      }
+      const clinicBadge = document.getElementById('lbl-prof-badge-clinic');
+      if (clinicBadge) clinicBadge.textContent = currentLang === 'tr' ? '🩺 Klinik Profil' : '🩺 Clinical Profile';
+      const nameFieldLbl = document.getElementById('lbl-prof-name-field');
+      if (nameFieldLbl) nameFieldLbl.textContent = currentLang === 'tr' ? 'Adı Soyadı / Takma Ad (Zorunlu):' : 'Full Name / Nickname (Required):';
+      const newProfInp = document.getElementById('inp-new-profile-name');
+      if (newProfInp) newProfInp.placeholder = currentLang === 'tr' ? 'Örn: Can (Çocuk), Fatma (Anne)' : 'e.g. Can (Child), Fatma (Mother)';
+      const relFieldLbl = document.getElementById('lbl-prof-rel-field');
+      if (relFieldLbl) relFieldLbl.textContent = currentLang === 'tr' ? 'Yakınlık Derecesi (İsteğe Bağlı):' : 'Relationship (Optional):';
+      const newRelInp = document.getElementById('inp-new-profile-rel');
+      if (newRelInp) newRelInp.placeholder = currentLang === 'tr' ? 'Örn: Çocuk, Ebeveyn, Eş, Kendim' : 'e.g. Child, Parent, Spouse, Myself';
+      const clinicTitle = document.getElementById('lbl-prof-clinic-title');
+      if (clinicTitle) clinicTitle.innerHTML = `<i class="fa-solid fa-notes-medical" style="color: #0284C7; margin-right: 4px;"></i> ${currentLang === 'tr' ? 'Klinik Bilgiler (Hekim Raporu İçin)' : 'Clinical Demographics (For Doctor Report)'}`;
+      const optHint = document.getElementById('lbl-prof-optional-hint');
+      if (optHint) optHint.textContent = currentLang === 'tr' ? 'İsteğe Bağlı' : 'Optional';
+      const ageLbl = document.getElementById('lbl-prof-age');
+      if (ageLbl) ageLbl.textContent = currentLang === 'tr' ? 'Yaş:' : 'Age:';
+      const ageInp = document.getElementById('inp-new-profile-age');
+      if (ageInp) ageInp.placeholder = currentLang === 'tr' ? 'Örn: 8' : 'e.g. 8';
+      const genderLbl = document.getElementById('lbl-prof-gender');
+      if (genderLbl) genderLbl.textContent = currentLang === 'tr' ? 'Cinsiyet:' : 'Gender:';
+      const optMale = document.getElementById('opt-gender-male');
+      if (optMale) optMale.textContent = currentLang === 'tr' ? 'Erkek' : 'Male';
+      const optFemale = document.getElementById('opt-gender-female');
+      if (optFemale) optFemale.textContent = currentLang === 'tr' ? 'Kadın' : 'Female';
+      const weightLbl = document.getElementById('lbl-prof-weight');
+      if (weightLbl) weightLbl.textContent = currentLang === 'tr' ? 'Kilo (kg):' : 'Weight (kg):';
+      const weightInp = document.getElementById('inp-new-profile-weight');
+      if (weightInp) weightInp.placeholder = currentLang === 'tr' ? 'Örn: 26 kg' : 'e.g. 26 kg';
+      const heightLbl = document.getElementById('lbl-prof-height');
+      if (heightLbl) heightLbl.textContent = currentLang === 'tr' ? 'Boy (cm):' : 'Height (cm):';
+      const heightInp = document.getElementById('inp-new-profile-height');
+      if (heightInp) heightInp.placeholder = currentLang === 'tr' ? 'Örn: 128 cm' : 'e.g. 128 cm';
+      const saveBtn = document.getElementById('btn-save-profile');
+      if (saveBtn) saveBtn.textContent = editingProfileId !== null ? (currentLang === 'tr' ? 'Değişiklikleri Kaydet' : 'Save Changes') : (currentLang === 'tr' ? 'Kaydet' : 'Save');
+      const cancelBtn = document.getElementById('btn-cancel-profile');
+      if (cancelBtn) cancelBtn.textContent = currentLang === 'tr' ? 'İptal' : 'Cancel';
+
+      let html = '';
+      profs.forEach(p => {
+        const isActive = p.id === activeProfileId;
+        const pillCount = p.id === 'all' 
+          ? allPills.length 
+          : allPills.filter(pill => (pill.profileId || 'p1') === p.id).length;
+
+        const displayName = getProfDisplayName(p);
+        const displayRelation = getProfDisplayRelation(p);
+        const planText = currentLang === 'tr' ? 'İlaç Planı' : 'Plans';
+
+        const canDelete = p.id !== 'all' && p.id !== 'p1';
+        html += `
+          <div class="profile-card-item ${isActive ? 'active' : ''}" onclick="switchProfile('${p.id}')">
+            <div class="profile-card-left">
+              <div class="profile-large-avatar" style="background: ${p.color};">
+                ${p.avatar}
+              </div>
+              <div>
+                <h4 style="font-size: 14px; font-weight: 700; color: #1E293B; margin-bottom: 2px;">${escapeHtml(displayName)}</h4>
+                <p style="font-size: 11px; color: #64748B;">${escapeHtml(displayRelation)} • ${pillCount} ${planText}${getProfileDemographicsTag(p)}</p>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              ${p.id !== 'all' ? `
+                <button class="btn-edit-prof" onclick="event.stopPropagation(); openEditProfileForm('${p.id}')" title="${currentLang === 'tr' ? 'Profili Düzenle' : 'Edit Profile'}">
+                  <i class="fa-solid fa-pen"></i>
+                </button>
+              ` : ''}
+              ${canDelete ? `
+                <button class="btn-delete-prof" onclick="event.stopPropagation(); deleteProfile('${p.id}', '${escapeHtml(displayName)}')" title="${currentLang === 'tr' ? 'Profili Sil' : 'Delete Profile'}">
+                  <i class="fa-regular fa-trash-can"></i>
+                </button>
+              ` : ''}
+              <div style="font-size: 16px; color: ${isActive ? 'var(--primary)' : '#CBD5E1'}; margin-left: 2px;">
+                <i class="fa-solid ${isActive ? 'fa-circle-check' : 'fa-circle'}"></i>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+    }
+
+    // Çoklu Dil (i18n) Sözlüğü - A'dan Z'ye Kusursuz Çift Dil (TR / EN)
+    const i18n = {
+      tr: {
+        flag: "🇹🇷",
+        code: "TR",
+        nextLangCode: "EN",
+        nextLangFlag: "🇬🇧",
+        appSubtitle: "Akıllı Doz Takibi",
+        tabToday: "Bugün",
+        tabAll: "Tüm Planlar",
+        tabHistory: "Geçmiş Günlük",
+        todayAdherence: "Günün İlaç Uyumu",
+        successBadge: "Başarı",
+        noPillsToday: "Bugün için planlanmış ilaç yok!",
+        pillsProgress: (total, taken) => `${total} ilaçtan ${taken} tanesi alındı`,
+        allDoneTitle: "Günün tüm ilaçları tamamlandı!",
+        allDoneDesc: "Başka bir gün için planlanan ilaçları 'Tüm Planlar' veya geçmişi 'Geçmiş Günlük' sekmesinden görebilirsiniz.",
+        noHistoryTitle: "Henüz geçmiş kayıt bulunamadı",
+        noHistoryDesc: "İlaçlarınızı aldıkça geçmiş alım günlüğünüz burada detaylıca listelenecektir.",
+        historySummary: (count) => `Kayıtlı toplam ${count} ilaç alım geçmişiniz var.`,
+        addNewPlanBtn: "Yeni İlaç Planı Ekle",
+        modalTitle: "Yeni İlaç Planı",
+        lblType: "İlaç Türü",
+        lblName: "İlaç Adı",
+        namePlaceholder: "Örn: Parol, D Vitamini, Glifor",
+        lblMeal: "Açlık / Tokluk Durumu",
+        lblMealFree: "Kullanım Zamanı (Yemekten Bağımsız)",
+        mealTok: "Tok Karnına",
+        mealAc: "Aç Karnına",
+        mealYemekle: "Yemekle",
+        mealFarketmez: "Farketmez",
+        lblDosage: "Dozaj Seçimi",
+        dosagePlaceholder: "Dozaj ve kullanım talimatı",
+        lblFreq: "Tekrar Sıklığı (Periyot)",
+        freqEveryday: "Her Gün",
+        freq2Days: "2 Günde Bir",
+        freqWeekly: "Haftada Bir",
+        lblTod: "Günün Vakti (Sabah / Öğlen / Akşam)",
+        todMorning: "Sabah",
+        todNoon: "Öğlen",
+        todEvening: "Akşam",
+        todNight: "Gece",
+        lblTime: "Hatırlatma Saati",
+        lblStock: "Kalan Stok (Adet)",
+        stockPlaceholder: "Örn: 30",
+        submitBtn: "Planı Kaydet & Bildirim Kur",
+        types: { tablet: "Tablet", syrup: "Şurup", injection: "İğne", drops: "Damla", spray: "Sprey", cream: "Krem / Merhem", dressing: "Pansuman" },
+        modalEditTitle: "İlaç / Tedavi Planını Düzenle",
+        submitEditBtn: "Değişiklikleri Kaydet",
+        btnEditTooltip: "Planı Düzenle",
+        takenBadge: "Alındı",
+        pendingBadge: "Bekliyor",
+        stockTag: "Stok",
+        dueTag: "Gelecek Doz",
+        toastTaken: (name) => `${name} alındı ve geçmiş günlüğe işlendi.`,
+        toastTakenDays: (name, days) => `${name} alındı! Sonraki doz: ${days} gün sonra.`,
+        toastPending: (name) => `${name} tekrar beklemede.`,
+        toastDeleted: (name) => `${name} silindi.`,
+        confirmDelete: (name) => `"${name}" planını silmek istediğinize emin misiniz?`,
+        alarmTitle: "İlaç Vakti",
+        alarmDesc: (name, dose) => `${name} (${dose}) almayı unutmayın!`,
+        docReportBtn: "Doktor Raporunu Görüntüle & Paylaş",
+        docReportTitle: "Klinik Hekim & Tedavi Raporu",
+        docReportSub: "Hekim Paylaşımı ve Hasta Uyum Özeti",
+        docReportCopyBtn: "Panoya Kopyala (WhatsApp / Hekim)",
+        docReportCloseBtn: "Kapat",
+        docReportScope: "Rapor Kapsamı",
+        docReportAdherence: "Tedavi Uyum Oranı",
+        docReportTotal: "Toplam Kayıtlı Alım",
+        docReportPatientHeader: "Hasta / Aile Üyesi",
+        docReportStatusVerified: "Doğrulandı (Alındı)",
+        typeLockedAlertTitle: "⚠️ İLAÇ TÜRÜ DEĞİŞTİRİLEMEZ",
+        typeLockedAlertMsg: "Kayıtlı bir planın ilaç türü (Tablet, Damla, Şurup vb.) güvenlik ve dozaj bütünlüğü nedeniyle düzenleme sırasında değiştirilemez.\n\nFarklı bir ilaç türü ayarlamak istiyorsanız lütfen bu planı silip yeni bir plan oluşturunuz.",
+        typeLockedBadge: "Düzenlemede İlaç Türü Sabittir",
+        days: ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'],
+        months: ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık']
+      },
+      en: {
+        flag: "🇬🇧",
+        code: "EN",
+        nextLangCode: "TR",
+        nextLangFlag: "🇹🇷",
+        appSubtitle: "Smart Dose Tracker",
+        tabToday: "Today",
+        tabAll: "All Plans",
+        tabHistory: "History Log",
+        todayAdherence: "Today's Adherence",
+        successBadge: "Rate",
+        noPillsToday: "No medicines scheduled for today!",
+        pillsProgress: (total, taken) => `${taken} of ${total} medicines taken`,
+        allDoneTitle: "All daily medicines completed!",
+        allDoneDesc: "View upcoming doses under 'All Plans' or review past taken logs under 'History Log'.",
+        noHistoryTitle: "No history logs yet",
+        noHistoryDesc: "As you take your medications, your dosage history will be tracked here in detail.",
+        historySummary: (count) => `Total ${count} medication doses logged in history.`,
+        addNewPlanBtn: "Add New Medicine Plan",
+        modalTitle: "New Medicine Plan",
+        lblType: "Medicine Form",
+        lblName: "Medicine Name",
+        namePlaceholder: "e.g. Paracetamol, Vitamin D, Glifor",
+        lblMeal: "Meal Timing (Before / After)",
+        lblMealFree: "Usage Timing (Independent)",
+        mealTok: "After meals",
+        mealAc: "Before meals",
+        mealYemekle: "With food",
+        mealFarketmez: "Anytime",
+        lblDosage: "Dosage Preset",
+        dosagePlaceholder: "Dosage & usage instructions",
+        lblFreq: "Frequency (Interval)",
+        freqEveryday: "Everyday",
+        freq2Days: "Every 2 Days",
+        freqWeekly: "Weekly",
+        lblTod: "Time of Day (Morning / Noon / Evening)",
+        todMorning: "Morning",
+        todNoon: "Noon",
+        todEvening: "Evening",
+        todNight: "Night",
+        lblTime: "Reminder Time",
+        lblStock: "Remaining Stock",
+        stockPlaceholder: "e.g. 30",
+        submitBtn: "Save Plan & Schedule Alarm",
+        types: { tablet: "Tablet", syrup: "Syrup", injection: "Injection", drops: "Drops", spray: "Spray", cream: "Cream / Ointment", dressing: "Dressing" },
+        modalEditTitle: "Edit Medicine / Care Plan",
+        submitEditBtn: "Save Changes",
+        btnEditTooltip: "Edit Plan",
+        takenBadge: "Taken",
+        pendingBadge: "Pending",
+        stockTag: "Stock",
+        dueTag: "Next Due",
+        toastTaken: (name) => `${name} taken & logged in history.`,
+        toastTakenDays: (name, days) => `${name} taken! Next dose in ${days} days.`,
+        toastPending: (name) => `${name} marked as pending.`,
+        toastDeleted: (name) => `${name} deleted.`,
+        confirmDelete: (name) => `Are you sure you want to delete "${name}" plan?`,
+        alarmTitle: "Pill Reminder",
+        alarmDesc: (name, dose) => `Time to take ${name} (${dose})!`,
+        docReportBtn: "View & Share Doctor Report",
+        docReportTitle: "Clinical Physician & Treatment Report",
+        docReportSub: "Physician Summary & Medication Adherence Log",
+        docReportCopyBtn: "Copy to Clipboard (WhatsApp / Doctor)",
+        docReportCloseBtn: "Close",
+        docReportScope: "Report Scope",
+        docReportAdherence: "Treatment Adherence",
+        docReportTotal: "Total Doses Logged",
+        docReportPatientHeader: "Patient / Family Member",
+        docReportStatusVerified: "Verified (Administered)",
+        typeLockedAlertTitle: "⚠️ MEDICINE TYPE CANNOT BE CHANGED",
+        typeLockedAlertMsg: "The formulation type (Tablet, Drops, Syrup, etc.) of an existing plan cannot be changed in edit mode to preserve clinical dosage integrity.\n\nTo use a different medicine type, please delete this plan and add a new one.",
+        typeLockedBadge: "Type Locked in Edit Mode",
+        days: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+        months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+      }
+    };
+
+    function t() {
+      return i18n[currentLang] || i18n.tr;
+    }
+
+    function toggleLanguage() {
+      currentLang = currentLang === 'tr' ? 'en' : 'tr';
+      localStorage.setItem(LANG_KEY, currentLang);
+      renderApp();
+      updateModalLanguage();
+      renderDynamicDosagePanel();
+      updateClinicalWarning();
+      renderProfilesList();
+      showToast(currentLang === 'tr' ? 'Dil: Türkçe seçildi 🇹🇷' : 'Language: English selected 🇬🇧');
+    }
+
+    // İlaç Çeviri ve Dil Yardımcıları (A'dan Z'ye Kusursuz Çift Dil)
+        // Öğün / Doz Vakti Etiketi (Sabah Öğünü, Öğle Öğünü, Akşam Öğünü, Gece Öğünü)
+    function getPillSlotLabel(pill) {
+      const tod = (pill && pill.timeOfDay) ? pill.timeOfDay : 'morning';
+      if (currentLang === 'tr') {
+        const map = {
+          morning: 'Sabah Öğünü',
+          noon: 'Öğle Öğünü',
+          evening: 'Akşam Öğünü',
+          night: 'Gece Öğünü'
+        };
+        return map[tod] || 'Sabah Öğünü';
+      } else {
+        const map = {
+          morning: 'Morning Dose',
+          noon: 'Noon Dose',
+          evening: 'Evening Dose',
+          night: 'Night Dose'
+        };
+        return map[tod] || 'Morning Dose';
+      }
+    }
+
+    function getPillName(item) {
+      if (!item) return '';
+      return currentLang === 'en' ? (item.name_en || item.name_tr || item.name) : (item.name_tr || item.name);
+    }
+
+    function getPillDosage(item) {
+      if (!item) return '';
+      return currentLang === 'en' ? (item.dosage_en || item.dosage_tr || item.dosage) : (item.dosage_tr || item.dosage);
+    }
+
+    function getDateLabel(item) {
+      if (!item) return '';
+      if (currentLang === 'en') {
+        if (item.dateLabel_en) return item.dateLabel_en;
+        if (item.dateLabel === 'Bugün') return 'Today';
+        if (item.dateLabel === 'Dün') return 'Yesterday';
+        if (item.dateLabel === '2 Gün Önce') return '2 Days Ago';
+        if (item.dateLabel === '1 Hafta Önce') return '1 Week Ago';
+        return item.dateLabel || 'Today';
+      }
+      return item.dateLabel_tr || item.dateLabel || 'Bugün';
+    }
+
+    // Örnek Geçmiş İlaç Alım Kayıtları (Dün ve Önceki Günler - Bilingual TR / EN)
+    const initialHistory = [
+      {
+        id: 101,
+        profileId: "p1",
+        name: "Parol 500 mg",
+        name_tr: "Parol 500 mg",
+        name_en: "Parol (Paracetamol) 500 mg",
+        type: "tablet",
+        dosage: "1 Tablet (Sabah • Aç karnına)",
+        dosage_tr: "1 Tablet (Sabah • Aç karnına)",
+        dosage_en: "1 Tablet (Morning • Before meals)",
+        time: "09:05",
+        timeOfDay: "morning",
+        dateYMD: getOffsetDateYMD(-1),
+        dateLabel: "Dün",
+        dateLabel_tr: "Dün",
+        dateLabel_en: "Yesterday"
+      },
+      {
+        id: 102,
+        profileId: "p2",
+        name: "Devit-3 Damla",
+        name_tr: "Devit-3 Damla",
+        name_en: "Devit-3 Vitamin D Drops",
+        type: "drops",
+        dosage: "10 Damla (Öğlen • Tok karnına)",
+        dosage_tr: "10 Damla (Öğlen • Tok karnına)",
+        dosage_en: "10 Drops (Noon • After meals)",
+        time: "13:30",
+        timeOfDay: "noon",
+        dateYMD: getOffsetDateYMD(-1),
+        dateLabel: "Dün",
+        dateLabel_tr: "Dün",
+        dateLabel_en: "Yesterday"
+      },
+      {
+        id: 103,
+        profileId: "p1",
+        name: "Otrivine Burun Spreyi",
+        name_tr: "Otrivine Burun Spreyi",
+        name_en: "Otrivine Nasal Spray",
+        type: "spray",
+        dosage: "Burun Spreyi • Her İki Deliğe 1 Fıs (Gece • Farketmez)",
+        dosage_tr: "Burun Spreyi • Her İki Deliğe 1 Fıs (Gece • Farketmez)",
+        dosage_en: "Nasal Spray • 1 Spray Each Nostril (Night • Anytime)",
+        time: "22:15",
+        timeOfDay: "night",
+        dateYMD: getOffsetDateYMD(-1),
+        dateLabel: "Dün",
+        dateLabel_tr: "Dün",
+        dateLabel_en: "Yesterday"
+      },
+      {
+        id: 104,
+        profileId: "p3",
+        name: "B12 İğnesi",
+        name_tr: "B12 İğnesi",
+        name_en: "Vitamin B12 Injection",
+        type: "injection",
+        dosage: "1 Ampul (Akşam • Haftalık Doz)",
+        dosage_tr: "1 Ampul (Akşam • Haftalık Doz)",
+        dosage_en: "1 Ampoule (Evening • Weekly Dose)",
+        time: "20:00",
+        timeOfDay: "evening",
+        dateYMD: getOffsetDateYMD(-7),
+        dateLabel: "1 Hafta Önce",
+        dateLabel_tr: "1 Hafta Önce",
+        dateLabel_en: "1 Week Ago"
+      }
+    ];
+
+    function getHistory() {
+      const saved = localStorage.getItem(HISTORY_KEY);
+      if (!saved) {
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(initialHistory));
+        return initialHistory;
+      }
+      return JSON.parse(saved);
+    }
+
+    function saveHistory(hist) {
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(hist));
+    }
+
+    function addHistoryEntry(pill) {
+      const hist = getHistory();
+      const now = new Date();
+      const hh = String(now.getHours()).padStart(2, '0');
+      const mm = String(now.getMinutes()).padStart(2, '0');
+      const entry = {
+        id: Date.now(),
+        profileId: pill.profileId || 'p1',
+        name: pill.name,
+        name_tr: pill.name_tr || pill.name,
+        name_en: pill.name_en || pill.name,
+        type: pill.type,
+        dosage: pill.dosage,
+        dosage_tr: pill.dosage_tr || pill.dosage,
+        dosage_en: pill.dosage_en || pill.dosage,
+        time: `${hh}:${mm}`,
+        timeOfDay: pill.timeOfDay || 'morning',
+        dateYMD: getTodayYMD(),
+        dateLabel: currentLang === 'tr' ? "Bugün" : "Today",
+        dateLabel_tr: "Bugün",
+        dateLabel_en: "Today"
+      };
+      hist.unshift(entry); // En başa ekle
+      saveHistory(hist);
+    }
+
+    // Varsayılan Zengin İlaç Listesi (Sabah / Öğlen / Akşam / Gece Vakitleri & Çift Dil Dahil!)
+    const initialData = [
+      {
+        id: 1,
+        groupId: 'grp_parol',
+        profileId: 'p1', // Abdullah
+        name: "Parol 500 mg",
+        name_tr: "Parol 500 mg",
+        name_en: "Parol (Paracetamol) 500 mg",
+        type: "tablet",
+        dosage: "1 Tablet [Sabah Dozu] (Aç karnına)",
+        dosage_tr: "1 Tablet [Sabah Dozu] (Aç karnına)",
+        dosage_en: "1 Tablet [Morning Dose] (Before meals)",
+        time: "08:30",
+        timeOfDay: "morning", // Sabah
+        freq: 1, // Her Gün
+        stock: 24,
+        nextDueDate: getTodayYMD(),
+        lastTakenDate: getTodayYMD(),
+        isTaken: 1
+      },
+      {
+        id: 10,
+        groupId: 'grp_parol',
+        profileId: 'p1', // Abdullah
+        name: "Parol 500 mg",
+        name_tr: "Parol 500 mg",
+        name_en: "Parol (Paracetamol) 500 mg",
+        type: "tablet",
+        dosage: "1 Tablet [Akşam Dozu] (Tok karnına)",
+        dosage_tr: "1 Tablet [Akşam Dozu] (Tok karnına)",
+        dosage_en: "1 Tablet [Evening Dose] (After meals)",
+        time: "19:30",
+        timeOfDay: "evening", // Akşam
+        freq: 1, // Her Gün
+        stock: 24,
+        nextDueDate: getTodayYMD(),
+        lastTakenDate: "",
+        isTaken: 0
+      },
+      {
+        id: 2,
+        profileId: 'p2', // Can (Çocuğum)
+        name: "Devit-3 Damla",
+        name_tr: "Devit-3 Damla",
+        name_en: "Devit-3 Vitamin D Drops",
+        type: "drops",
+        dosage: "Sağ Göze 2 Damla (Öğlen • Farketmez)",
+        dosage_tr: "Sağ Göze 2 Damla (Öğlen • Farketmez)",
+        dosage_en: "2 Drops in Right Eye (Noon • Anytime)",
+        time: "13:00",
+        timeOfDay: "noon", // Öğlen
+        freq: 2, // 2 Günde Bir!
+        stock: 12,
+        nextDueDate: getTodayYMD(),
+        isTaken: 0
+      },
+      {
+        id: 3,
+        profileId: 'p1', // Abdullah
+        name: "Otrivine Burun Spreyi",
+        name_tr: "Otrivine Burun Spreyi",
+        name_en: "Otrivine Nasal Decongestant",
+        type: "spray",
+        dosage: "Burun Spreyi • Her İki Deliğe 1 Fıs (Akşam • Farketmez)",
+        dosage_tr: "Burun Spreyi • Her İki Deliğe 1 Fıs (Akşam • Farketmez)",
+        dosage_en: "Nasal Spray • 1 Spray Each Nostril (Evening • Anytime)",
+        time: "19:30",
+        timeOfDay: "evening", // Akşam
+        freq: 1,
+        stock: 15,
+        nextDueDate: getTodayYMD(),
+        isTaken: 0
+      },
+      {
+        id: 4,
+        profileId: 'p3', // Fatma (Annem)
+        name: "B12 İğnesi",
+        name_tr: "B12 İğnesi",
+        name_en: "Vitamin B12 Injection",
+        type: "injection",
+        dosage: "1 Ampul (Gece • Farketmez)",
+        dosage_tr: "1 Ampul (Gece • Farketmez)",
+        dosage_en: "1 Ampoule (Night • Anytime)",
+        time: "21:30",
+        timeOfDay: "night", // Gece
+        freq: 7, // Haftada Bir!
+        stock: 3,
+        nextDueDate: getOffsetDateYMD(2), // 2 Gün sonra
+        isTaken: 0
+      },
+      {
+        id: 5,
+        profileId: 'p2', // Can (Çocuğum)
+        name: "Ventolin İnhalatör (Puf)",
+        name_tr: "Ventolin İnhalatör (Puf)",
+        name_en: "Ventolin Inhaler (Puff)",
+        type: "spray",
+        dosage: "Astım İnhalatörü (Puf) • 1 Puf (Akşam • Derin Nefes)",
+        dosage_tr: "Astım İnhalatörü (Puf) • 1 Puf (Akşam • Derin Nefes)",
+        dosage_en: "Asthma Inhaler • 1 Puff (Evening • Deep Inhale)",
+        time: "18:00",
+        timeOfDay: "evening", // Akşam
+        freq: 1,
+        stock: 60,
+        nextDueDate: getTodayYMD(),
+        isTaken: 0
+      },
+      {
+        id: 6,
+        profileId: 'p1', // Abdullah
+        name: "Madecassol Merhem",
+        name_tr: "Madecassol Merhem",
+        name_en: "Madecassol Topical Ointment",
+        type: "cream",
+        dosage: "Krem: İnce Tabaka (Nohut Büyüklüğü) (Akşam • Masajla)",
+        dosage_tr: "Krem: İnce Tabaka (Nohut Büyüklüğü) (Akşam • Masajla)",
+        dosage_en: "Cream: Thin Layer (Pea-sized) (Evening • Gently Rub)",
+        time: "20:30",
+        timeOfDay: "evening",
+        freq: 1,
+        stock: 25,
+        nextDueDate: getTodayYMD(),
+        isTaken: 0
+      },
+      {
+        id: 7,
+        profileId: 'p1', // Abdullah
+        name: "Steril Yara Pansumanı",
+        name_tr: "Steril Yara Pansumanı",
+        name_en: "Sterile Wound Dressing",
+        type: "dressing",
+        dosage: "Pansuman: Gazlı Bez Yenileme & Batikon (Sabah • Kuru Tutunuz)",
+        dosage_tr: "Pansuman: Gazlı Bez Yenileme & Batikon (Sabah • Kuru Tutunuz)",
+        dosage_en: "Dressing: Sterile Gauze Change & Betadine (Morning • Keep Dry)",
+        time: "08:30",
+        timeOfDay: "morning",
+        freq: 1,
+        stock: 10,
+        nextDueDate: getTodayYMD(),
+        isTaken: 0
+      }
+    ];
+
+    function getPills() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (!saved) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(initialData));
+        return initialData;
+      }
+      return JSON.parse(saved);
+    }
+
+    function savePills(pills) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(pills));
+      renderApp();
+    }
+
+    function getTodayYMD() {
+      const d = new Date();
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
+
+    function getOffsetDateYMD(days) {
+      const d = new Date();
+      d.setDate(d.getDate() + days);
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
+
+    function switchTab(tab) {
+      currentTab = tab;
+      document.getElementById('tab-today').classList.toggle('active', tab === 'today');
+      document.getElementById('tab-all').classList.toggle('active', tab === 'all');
+      document.getElementById('tab-history').classList.toggle('active', tab === 'history');
+      renderApp();
+    }
+
+    function quickRefillStock(id, e) {
+      if (e) e.stopPropagation();
+      const pills = getPills();
+      const pill = pills.find(p => p.id === id);
+      if (!pill) return;
+      const pName = getPillName(pill);
+
+      const promptMsg = currentLang === 'tr'
+        ? `"${pName}" ilacı için eklenecek stok adedini girin (örn: 20 veya 30):`
+        : `Enter quantity to add to "${pName}" stock (e.g. 20 or 30):`;
+
+      const input = prompt(promptMsg, "30");
+      if (input !== null) {
+        const added = parseInt(input.trim());
+        if (!isNaN(added) && added > 0) {
+          pill.stock += added;
+          savePills(pills);
+          const successMsg = currentLang === 'tr'
+            ? `+${added} adet eklendi! Güncel stok: ${pill.stock}`
+            : `+${added} added! Current stock: ${pill.stock}`;
+          showToast(successMsg);
+        }
+      }
+    }
+
+    // --- KLİNİK DOKTOR RAPORU GÖRÜNTÜLEME VE PAYLAŞMA SİSTEMİ ---
+    let latestGeneratedDocReportText = "";
+
+    function openDoctorReportModal() {
+      renderDoctorReportModalContent();
+      document.getElementById('doctor-report-backdrop').classList.add('active');
+    }
+
+    function closeDoctorReportModal() {
+      document.getElementById('doctor-report-backdrop').classList.remove('active');
+    }
+
+    function renderDoctorReportModalContent() {
+      const curProf = getActiveProfile();
+      const pName = getProfDisplayName(curProf);
+      const allHistory = getHistory();
+      const profs = getProfiles();
+      const isFamily = activeProfileId === 'all';
+      const lang = t();
+
+      const histList = isFamily 
+        ? allHistory 
+        : allHistory.filter(h => (h.profileId || 'p1') === activeProfileId);
+
+      const now = new Date();
+      const dateStr = currentLang === 'tr'
+        ? `${now.getDate()} ${lang.months[now.getMonth()]} ${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
+        : `${lang.months[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+      // 1. Modal Başlıkları
+      const titleEl = document.getElementById('txt-doc-modal-title');
+      if (titleEl) titleEl.textContent = lang.docReportTitle || (currentLang === 'tr' ? 'Klinik Hekim & Tedavi Raporu' : 'Clinical Physician Report');
+      const subEl = document.getElementById('txt-doc-modal-sub');
+      if (subEl) subEl.textContent = lang.docReportSub || (currentLang === 'tr' ? 'Hekim Paylaşımı ve Hasta Uyum Özeti' : 'Physician Summary & Adherence');
+      const copyBtnEl = document.getElementById('txt-btn-copy-doc-report');
+      if (copyBtnEl) copyBtnEl.textContent = lang.docReportCopyBtn || (currentLang === 'tr' ? 'Panoya Kopyala (WhatsApp / Hekim)' : 'Copy to Clipboard (WhatsApp / Doctor)');
+      const closeBtnEl = document.getElementById('txt-btn-close-doc-report');
+      if (closeBtnEl) closeBtnEl.textContent = lang.docReportCloseBtn || (currentLang === 'tr' ? 'Kapat' : 'Close');
+
+      // 2. Meta Bilgi Kartı
+      const scopeLabel = isFamily
+        ? (currentLang === 'tr' ? '👨‍👩‍👧‍👦 Tüm Aile (Hane Halkı Tedavi Özeti)' : '👨‍👩‍👧‍👦 All Family (Household Care Summary)')
+        : `👤 ${escapeHtml(pName)} (${escapeHtml(getProfDisplayRelation(curProf))})`;
+
+      const membersListStr = profs.filter(p => p.id !== 'all').map(p => `${getProfDisplayName(p)} (${getProfDisplayRelation(p)})`).join(', ');
+
+      const metaHtml = `
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+          <div>
+            <span style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #64748B; letter-spacing: 0.05em;">${currentLang === 'tr' ? 'Rapor Kapsamı / Profil:' : 'Report Scope / Profile:'}</span>
+            <div style="font-size: 14px; font-weight: 800; color: #0F172A; margin-top: 1px;">${scopeLabel}</div>
+            ${isFamily ? `<div style="font-size: 11px; color: #475569; margin-top: 2px;"><strong>${currentLang === 'tr' ? 'Kapsanan Üyeler:' : 'Covered Members:'}</strong> ${escapeHtml(membersListStr)}</div>` : ''}
+          </div>
+          <div style="text-align: right;">
+            <span style="display: inline-block; background: #D1FAE5; color: #065F46; font-size: 11px; font-weight: 800; padding: 4px 8px; border-radius: 8px;">
+              <i class="fa-solid fa-circle-check"></i> %100 ${currentLang === 'tr' ? 'Uyum' : 'Adherence'}
+            </span>
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; border-top: 1px solid #E2E8F0; padding-top: 8px; font-size: 11.5px; color: #475569;">
+          <div><strong>${currentLang === 'tr' ? 'Rapor Tarihi:' : 'Report Date:'}</strong> ${dateStr}</div>
+          <div><strong>${currentLang === 'tr' ? 'Kayıtlı Alınan Doz:' : 'Administered Doses:'}</strong> ${histList.length} ${currentLang === 'tr' ? 'Doz' : 'Doses'}</div>
+        </div>
+      `;
+      document.getElementById('doc-report-meta-card').innerHTML = metaHtml;
+
+      // 3. Doz Dökümü ve Kartlar
+      const container = document.getElementById('doc-report-items-container');
+      container.innerHTML = '';
+
+      let textReport = currentLang === 'tr'
+        ? `📋 MEDICINE REMINDER — KLİNİK HASTA TEDAVİ VE İLAÇ UYUM RAPORU\n`
+        : `📋 MEDICINE REMINDER — CLINICAL PATIENT MEDICATION & ADHERENCE REPORT\n`;
+      textReport += `==================================================\n`;
+      textReport += `${currentLang === 'tr' ? 'Rapor Tarihi' : 'Report Date'}: ${dateStr}\n`;
+      textReport += `${currentLang === 'tr' ? 'Kapsam' : 'Scope'}: ${scopeLabel}\n`;
+      if (isFamily) textReport += `${currentLang === 'tr' ? 'Hane Üyeleri' : 'Household Members'}: ${membersListStr}\n`;
+      textReport += `${currentLang === 'tr' ? 'Kayıtlı Doz Adedi' : 'Total Doses Logged'}: ${histList.length}\n`;
+      textReport += `${currentLang === 'tr' ? 'Tedavi Uyum Oranı' : 'Overall Adherence'}: %100 (${currentLang === 'tr' ? 'Eksiksiz' : 'Complete'})\n`;
+      textReport += `==================================================\n\n`;
+
+      if (histList.length === 0) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 24px; color: #94A3B8;">
+            <i class="fa-solid fa-clipboard-check" style="font-size: 36px; color: #CBD5E1; margin-bottom: 8px;"></i>
+            <p style="font-size: 13px;">${currentLang === 'tr' ? 'Bu profil için henüz kayıtlı ilaç dozu bulunmamaktadır.' : 'No medication doses logged yet for this profile.'}</p>
+          </div>
+        `;
+        textReport += currentLang === 'tr' ? `Henüz kayıtlı doz bulunmamaktadır.\n` : `No doses logged yet.\n`;
+      } else {
+        // Aile görünümünde hastaya göre grupla; tekil profilde doğrudan listele
+        if (isFamily) {
+          textReport += `${currentLang === 'tr' ? 'HASTA BAZLI TEDAVİ VE ALINAN DOZ DÖKÜMÜ:' : 'PATIENT-BY-PATIENT CLINICAL DOSAGE LOG:'}\n`;
+          textReport += `--------------------------------------------------\n`;
+
+          // Aile üyelerini gez
+          const membersWithHistory = profs.filter(p => p.id !== 'all');
+          membersWithHistory.forEach(member => {
+            const memberDoses = histList.filter(h => (h.profileId || 'p1') === member.id);
+            if (memberDoses.length === 0) return;
+
+            const memTitle = `${getProfDisplayName(member)} (${getProfDisplayRelation(member)})`;
+            const demoStr = getProfileDemographicsSummary(member);
+            textReport += `\n[${currentLang === 'tr' ? 'HASTA' : 'PATIENT'}: ${memTitle}]\n`;
+            if (demoStr) textReport += `  ${currentLang === 'tr' ? 'Klinik Bilgiler' : 'Clinical Demographics'}: ${demoStr}\n`;
+
+            const groupBlock = document.createElement('div');
+            groupBlock.style.marginBottom = '14px';
+            groupBlock.innerHTML = `
+              <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px; padding: 4px 8px; background: ${member.color}15; border-left: 3px solid ${member.color}; border-radius: 4px;">
+                <div>
+                  <span style="font-size: 12px; font-weight: 800; color: ${member.color};"><i class="fa-solid fa-user"></i> ${escapeHtml(memTitle)}</span>
+                  ${getProfileDemographicsBadge(member)}
+                </div>
+                <span style="font-size: 11px; font-weight: 700; color: #475569; background: #FFFFFF; padding: 2px 8px; border-radius: 6px; border: 1px solid #CBD5E1; margin-left: auto;">${memberDoses.length} ${currentLang === 'tr' ? 'Doz' : 'Doses'}</span>
+              </div>
+            `;
+
+            memberDoses.forEach(dose => {
+              const medName = getPillName(dose);
+              const medDose = getPillDosage(dose);
+              const dLabel = getDateLabel(dose);
+              const slotStr = getPillSlotLabel(dose);
+              const typeStr = dose.type ? dose.type.toUpperCase() : 'TABLET';
+
+              textReport += `  • ${medName} [${typeStr}]\n`;
+              textReport += `    - ${currentLang === 'tr' ? 'Doz & Öğün' : 'Dosage & Slot'}: ${medDose} (${slotStr})\n`;
+              textReport += `    - ${currentLang === 'tr' ? 'Alınan Saat' : 'Time Taken'}: ${dose.time} — ${dLabel} (${dose.dateYMD})\n`;
+              textReport += `    - ${currentLang === 'tr' ? 'Durum' : 'Status'}: ${currentLang === 'tr' ? 'Doğrulandı (Alındı)' : 'Verified (Taken)'}\n`;
+
+              const itemCard = document.createElement('div');
+              itemCard.style.cssText = "background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 10px; padding: 8px 12px; margin-bottom: 6px; font-size: 11.5px;";
+              itemCard.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <strong style="color: #0F172A; font-size: 12.5px;">${escapeHtml(medName)}</strong>
+                  <span style="font-size: 10px; font-weight: 700; color: #0284C7; background: #E0F2FE; padding: 2px 6px; border-radius: 6px;">${typeStr}</span>
+                </div>
+                <div style="color: #0D9488; font-weight: 600; margin-top: 2px;">${escapeHtml(medDose)} • <span style="color: #64748B;">${escapeHtml(slotStr)}</span></div>
+                <div style="display: flex; justify-content: space-between; margin-top: 4px; font-size: 11px; color: #64748B;">
+                  <span><i class="fa-regular fa-clock"></i> ${dose.time} — ${escapeHtml(dLabel)}</span>
+                  <span style="color: #059669; font-weight: 700;"><i class="fa-solid fa-check-circle"></i> ${lang.docReportStatusVerified || 'Alındı'}</span>
+                </div>
+              `;
+              groupBlock.appendChild(itemCard);
+            });
+
+            container.appendChild(groupBlock);
+          });
+        } else {
+          // Tekil Hasta Listelemesi
+          textReport += `${currentLang === 'tr' ? 'ALINAN İLAÇ VE DOZ DÖKÜMÜ:' : 'ADMINISTERED DOSAGE LOG:'}\n`;
+          textReport += `--------------------------------------------------\n`;
+
+          histList.forEach((dose, idx) => {
+            const medName = getPillName(dose);
+            const medDose = getPillDosage(dose);
+            const dLabel = getDateLabel(dose);
+            const slotStr = getPillSlotLabel(dose);
+            const typeStr = dose.type ? dose.type.toUpperCase() : 'TABLET';
+
+            textReport += `${idx + 1}. ${medName} [${typeStr}]\n`;
+            textReport += `   - ${currentLang === 'tr' ? 'Doz & Öğün' : 'Dosage & Slot'}: ${medDose} (${slotStr})\n`;
+            textReport += `   - ${currentLang === 'tr' ? 'Alınan Saat' : 'Time Taken'}: ${dose.time} — ${dLabel} (${dose.dateYMD})\n`;
+            textReport += `   - ${currentLang === 'tr' ? 'Durum' : 'Status'}: ${currentLang === 'tr' ? 'Doğrulandı (Alındı)' : 'Verified (Taken)'}\n`;
+
+            const itemCard = document.createElement('div');
+            itemCard.style.cssText = "background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 10px; padding: 9px 12px; margin-bottom: 6px; font-size: 11.5px;";
+            itemCard.innerHTML = `
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <strong style="color: #0F172A; font-size: 12.5px;">${escapeHtml(medName)}</strong>
+                <span style="font-size: 10px; font-weight: 700; color: #0284C7; background: #E0F2FE; padding: 2px 6px; border-radius: 6px;">${typeStr}</span>
+              </div>
+              <div style="color: #0D9488; font-weight: 600; margin-top: 2px;">${escapeHtml(medDose)} • <span style="color: #64748B;">${escapeHtml(slotStr)}</span></div>
+              <div style="display: flex; justify-content: space-between; margin-top: 4px; font-size: 11px; color: #64748B;">
+                <span><i class="fa-regular fa-clock"></i> ${dose.time} — ${escapeHtml(dLabel)}</span>
+                <span style="color: #059669; font-weight: 700;"><i class="fa-solid fa-check-circle"></i> ${lang.docReportStatusVerified || 'Alındı'}</span>
+              </div>
+            `;
+            container.appendChild(itemCard);
+          });
+        }
+      }
+
+      textReport += `\n==================================================\n`;
+      textReport += currentLang === 'tr'
+        ? `Hekim Notu: Hasta(lar) reçeteli tedavilerini düzenli olarak uygulamıştır.\nMedicine Reminder Akıllı Mobil Sağlık Sistemi tarafından oluşturulmuştur.`
+        : `Clinical Note: Patient(s) have administered prescribed doses in compliance with medical timings.\nGenerated via Medicine Reminder Mobile Health Assistant.`;
+
+      latestGeneratedDocReportText = textReport;
+      const rawTextarea = document.getElementById('doc-report-raw-textarea');
+      if (rawTextarea) rawTextarea.value = textReport;
+    }
+
+    function copyDoctorReportFromModal() {
+      if (!latestGeneratedDocReportText) return;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(latestGeneratedDocReportText).then(() => {
+          showToast(currentLang === 'tr' ? '📋 Doktor raporu kopyalandı! WhatsApp veya hekiminizle paylaşabilirsiniz.' : '📋 Doctor report copied! Ready to share with your physician.');
+        }).catch(() => {
+          alert(latestGeneratedDocReportText);
+        });
+      } else {
+        alert(latestGeneratedDocReportText);
+      }
+    }
+
+    function copyDoctorReport() {
+      openDoctorReportModal();
+    }
+
+    // Ertesi Gün Otomatik Sıfırlama ve Aktif Alarm Sistemi (Daily Auto-Reset Engine)
+    function checkAndResetDailyPills() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (!saved) return;
+      const pills = JSON.parse(saved);
+      const todayYMD = getTodayYMD();
+      let changed = false;
+
+      pills.forEach(pill => {
+        if (pill.freq === 1) {
+          // Her gün düzenli alınan ilaç: Dün veya daha önce alınmışsa, YENİ GÜN İÇİN tekrar beklemede (0) yap!
+          if (pill.isTaken === 1 && pill.lastTakenDate && pill.lastTakenDate < todayYMD) {
+            pill.isTaken = 0;
+            changed = true;
+          }
+        } else if (pill.freq > 1) {
+          // X günde bir: Günü geldiyse ve bugün henüz alınmadıysa tekrar beklemede (0) yap!
+          if (todayYMD >= pill.nextDueDate && pill.lastTakenDate !== todayYMD && pill.isTaken === 1) {
+            pill.isTaken = 0;
+            changed = true;
+          }
+        }
+      });
+
+      if (changed) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(pills));
+      }
+    }
+
+    function renderApp() {
+      checkAndResetDailyPills();
+      const allPills = getPills();
+      const allHistory = getHistory();
+      const profs = getProfiles();
+      const curProf = getActiveProfile();
+      const todayYMD = getTodayYMD();
+      const lang = t();
+
+      // Üst Başlık & Aktif Profil Butonu Güncelleme
+      const profAvatar = document.getElementById('current-profile-avatar');
+      const profName = document.getElementById('current-profile-name');
+      if (profAvatar) {
+        profAvatar.textContent = curProf.avatar;
+        profAvatar.style.background = curProf.color;
+      }
+      if (profName) {
+        profName.textContent = getProfDisplayName(curProf);
+      }
+
+      // Buton Tooltip (Title) Çevirileri
+      const btnProf = document.querySelector('.profile-selector-btn');
+      if (btnProf) btnProf.title = currentLang === 'tr' ? 'Profil Değiştir' : 'Switch Profile';
+      const btnLang = document.querySelector('.lang-toggle-btn');
+      if (btnLang) btnLang.title = currentLang === 'tr' ? 'Dili Değiştir (İngilizce)' : 'Change Language (Turkish)';
+      const btnFast = document.getElementById('btn-fast-alarm');
+      if (btnFast) btnFast.title = currentLang === 'tr' ? '5 Sn Alarm Testi' : '5s Alarm Test';
+      const btnSound = document.getElementById('btn-sound-alert');
+      if (btnSound) btnSound.title = currentLang === 'tr' ? 'Ses ve Bildirim' : 'Sound & Alert';
+      const btnRefresh = document.getElementById('btn-refresh-app');
+      if (btnRefresh) btnRefresh.title = currentLang === 'tr' ? 'Yenile' : 'Refresh';
+
+      const appSub = document.getElementById('txt-app-sub');
+      if (appSub) appSub.textContent = lang.appSubtitle;
+      const langFlag = document.getElementById('lang-flag');
+      if (langFlag) langFlag.textContent = lang.nextLangFlag;
+      const langCode = document.getElementById('lang-code');
+      if (langCode) langCode.textContent = lang.nextLangCode;
+
+      // Sekme Butonları Metinleri
+      document.getElementById('tab-today').textContent = lang.tabToday;
+      document.getElementById('tab-all').textContent = lang.tabAll;
+      document.getElementById('tab-history').innerHTML = `<i class="fa-solid fa-clock-rotate-left"></i> ${lang.tabHistory}`;
+
+      // Kart ve Buton Başlıkları
+      document.querySelector('.hero-info h3').textContent = lang.todayAdherence;
+      document.querySelector('.hero-stats small').textContent = lang.successBadge;
+      document.querySelector('.fab-btn span').textContent = lang.addNewPlanBtn;
+
+      // Tarih Bilgisi Güncelleme (Seçili Dile Göre)
+      const now = new Date();
+      document.getElementById('current-day-name').textContent = `${lang.days[now.getDay()]}`;
+      document.getElementById('current-date-str').textContent = `${now.getDate()} ${lang.months[now.getMonth()]} ${now.getFullYear()}`;
+      document.getElementById('clock-display').textContent = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+      // Modal İçindeki Metinleri Güncelle
+      updateModalLanguage();
+
+      const container = document.getElementById('medicine-stack');
+      container.innerHTML = '';
+
+      // --- GEÇMİŞ GÜNLÜK SEKMESİ (Aktif Profile Göre Filtreli) ---
+      if (currentTab === 'history') {
+        const historyList = activeProfileId === 'all' 
+          ? allHistory 
+          : allHistory.filter(h => (h.profileId || 'p1') === activeProfileId);
+
+        document.getElementById('progress-summary').textContent = lang.historySummary(historyList.length);
+        document.getElementById('percent-val').textContent = `100%`;
+
+        // Doktor Raporu Paylaş Butonu Ekle
+        const reportBtnHtml = `
+          <div style="margin-bottom: 12px; display: flex; justify-content: flex-end;">
+            <button onclick="openDoctorReportModal()" style="background: #F0FDFA; border: 1.5px solid #0D9488; color: #0F766E; font-size: 12.5px; font-weight: 700; padding: 8px 16px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 2px 4px rgba(13,148,136,0.12); transition: all 0.2s;">
+              <i class="fa-solid fa-file-waveform" style="color: #0D9488; font-size: 14px;"></i> ${lang.docReportBtn || (currentLang === 'tr' ? 'Doktor Raporunu Görüntüle & Paylaş' : 'View & Share Doctor Report')}
+            </button>
+          </div>
+        `;
+
+        if (historyList.length === 0) {
+          container.innerHTML = `
+            <div style="text-align: center; padding: 40px 20px; color: #94A3B8;">
+              <i class="fa-solid fa-clock-rotate-left" style="font-size: 54px; color: #CBD5E1; margin-bottom: 12px;"></i>
+              <h4 style="font-size: 16px; color: #475569;">${lang.noHistoryTitle}</h4>
+              <p style="font-size: 13px;">${lang.noHistoryDesc}</p>
+            </div>
+          `;
+          return;
+        }
+
+        // Geçmiş Kayıtları Listele
+        container.innerHTML = reportBtnHtml;
+        historyList.forEach(entry => {
+          let iconClass = 'fa-pills';
+          let avatarClass = 'avatar-tablet';
+          if (entry.type === 'syrup') { iconClass = 'fa-prescription-bottle'; avatarClass = 'avatar-syrup'; }
+          if (entry.type === 'injection') { iconClass = 'fa-syringe'; avatarClass = 'avatar-injection'; }
+          if (entry.type === 'drops') { iconClass = 'fa-droplet'; avatarClass = 'avatar-drops'; }
+          if (entry.type === 'spray') { iconClass = 'fa-spray-can'; avatarClass = 'avatar-spray'; }
+          if (entry.type === 'cream') { iconClass = 'fa-pump-medical'; avatarClass = 'avatar-cream'; }
+          if (entry.type === 'dressing') { iconClass = 'fa-bandage'; avatarClass = 'avatar-dressing'; }
+
+          // Profil & Günün Vakti Rozetleri (Tüm Aile görünümünde kime ait olduğunu gösterir)
+          const histProf = profs.find(pr => pr.id === (entry.profileId || 'p1'));
+          const profBadge = histProf && activeProfileId === 'all'
+            ? `<span class="pill-tag" style="background:${histProf.color}15; color:${histProf.color}; font-weight:700;"><i class="fa-solid fa-user"></i> ${escapeHtml(getProfDisplayName(histProf))}</span>`
+            : '';
+
+          const histTod = entry.timeOfDay || 'morning';
+          let histTodLabel = currentLang === 'tr' ? 'Sabah' : 'Morning';
+          let histTodClass = 'tag-tod-morning';
+          let histTodIcon = 'fa-cloud-sun';
+          if (histTod === 'noon') { histTodLabel = currentLang === 'tr' ? 'Öğlen' : 'Noon'; histTodClass = 'tag-tod-noon'; histTodIcon = 'fa-sun'; }
+          else if (histTod === 'evening') { histTodLabel = currentLang === 'tr' ? 'Akşam' : 'Evening'; histTodClass = 'tag-tod-evening'; histTodIcon = 'fa-cloud-moon'; }
+          else if (histTod === 'night') { histTodLabel = currentLang === 'tr' ? 'Gece' : 'Night'; histTodClass = 'tag-tod-night'; histTodIcon = 'fa-moon'; }
+          const histTodBadge = `<span class="pill-tag ${histTodClass}"><i class="fa-solid ${histTodIcon}"></i> ${histTodLabel}</span>`;
+
+          const dateDisplay = getDateLabel(entry);
+
+          const card = document.createElement('div');
+          card.className = 'med-card';
+          card.style.background = '#FFFFFF';
+          card.innerHTML = `
+            <div class="med-left">
+              <div class="type-avatar ${avatarClass}">
+                <i class="fa-solid ${iconClass}"></i>
+              </div>
+              <div class="med-info">
+                <h4>${escapeHtml(getPillName(entry))}</h4>
+                <div class="med-dosage" style="font-weight: 600; color: #0D9488;">${escapeHtml(getPillDosage(entry))}</div>
+                <div class="tags-row">
+                  ${profBadge}
+                  ${histTodBadge}
+                  <span class="pill-tag" style="background: #E0F2FE; color: #0369A1; font-weight: 700;">
+                    <i class="fa-regular fa-calendar-check"></i> ${escapeHtml(dateDisplay)}
+                  </span>
+                  <span class="pill-tag tag-time">
+                    <i class="fa-regular fa-clock"></i> ${entry.time}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="med-right">
+              <div style="background: #D1FAE5; color: #065F46; font-size: 11px; font-weight: 800; padding: 6px 10px; border-radius: 10px; display: flex; align-items: center; gap: 4px;">
+                <i class="fa-solid fa-check"></i> ${lang.takenBadge}
+              </div>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+        return;
+      }
+
+      // --- BUGÜN & TÜM PLANLAR SEKMESİ (Aktif Profile Göre Filtreli) ---
+      const filteredPills = activeProfileId === 'all'
+        ? allPills
+        : allPills.filter(p => (p.profileId || 'p1') === activeProfileId);
+
+      const todayPills = filteredPills.filter(p => p.nextDueDate <= todayYMD);
+      const displayPills = currentTab === 'today' ? todayPills : filteredPills;
+
+      // İlerleme Hesabı (Bugünkü ilaçlara göre)
+      const takenCount = todayPills.filter(p => p.isTaken === 1).length;
+      const totalCount = todayPills.length;
+      const percent = totalCount > 0 ? Math.round((takenCount / totalCount) * 100) : 100;
+
+      document.getElementById('percent-val').textContent = `${percent}%`;
+      document.getElementById('progress-summary').textContent = totalCount > 0 
+        ? lang.pillsProgress(totalCount, takenCount)
+        : lang.noPillsToday;
+
+      if (displayPills.length === 0) {
+        const isFiltered = activeProfileId !== 'all';
+        const emptyTitle = isFiltered 
+          ? (currentLang === 'tr' ? `${getProfDisplayName(curProf)} için planlanmış ilaç yok` : `No medicines scheduled for ${getProfDisplayName(curProf)}`)
+          : lang.allDoneTitle;
+        const emptyDesc = isFiltered
+          ? (currentLang === 'tr' ? 'Bu profile yeni bir ilaç planı eklemek için aşağıdaki + butonuna dokunun.' : 'Tap the + button below to add a medicine plan for this profile.')
+          : lang.allDoneDesc;
+
+        container.innerHTML = `
+          <div style="text-align: center; padding: 40px 20px; color: #94A3B8;">
+            <i class="fa-solid ${isFiltered ? 'fa-folder-open' : 'fa-circle-check'}" style="font-size: 54px; color: #CBD5E1; margin-bottom: 12px;"></i>
+            <h4 style="font-size: 16px; color: #475569;">${emptyTitle}</h4>
+            <p style="font-size: 13px;">${emptyDesc}</p>
+          </div>
+        `;
+        return;
+      }
+
+      displayPills.forEach(pill => {
+        const isDone = pill.isTaken === 1;
+        const isToday = pill.nextDueDate <= todayYMD;
+
+        // Periyot Metni
+        let freqText = lang.freqEveryday;
+        let freqClass = 'tag-freq-1';
+        if (pill.freq === 2) { freqText = lang.freq2Days; freqClass = 'tag-freq-2'; }
+        else if (pill.freq === 7) { freqText = lang.freqWeekly; freqClass = 'tag-freq-7'; }
+        else if (pill.freq > 1) { 
+          freqText = currentLang === 'tr' ? `${pill.freq} Günde Bir` : `Every ${pill.freq} Days`; 
+          freqClass = 'tag-freq-2'; 
+        }
+
+        // Tarih Durumu
+        let dueBadge = '';
+        if (pill.nextDueDate > todayYMD) {
+          dueBadge = `<span class="pill-tag" style="background:#EDE9FE; color:#7C3AED;"><i class="fa-regular fa-calendar"></i> ${lang.dueTag}: ${formatFriendlyDate(pill.nextDueDate)}</span>`;
+        }
+
+        // İlaç Türü İkonu
+        let iconClass = 'fa-pills';
+        let avatarClass = 'avatar-tablet';
+        if (pill.type === 'syrup') { iconClass = 'fa-prescription-bottle'; avatarClass = 'avatar-syrup'; }
+        if (pill.type === 'injection') { iconClass = 'fa-syringe'; avatarClass = 'avatar-injection'; }
+        if (pill.type === 'drops') { iconClass = 'fa-droplet'; avatarClass = 'avatar-drops'; }
+        if (pill.type === 'spray') { iconClass = 'fa-spray-can'; avatarClass = 'avatar-spray'; }
+        if (pill.type === 'cream') { iconClass = 'fa-pump-medical'; avatarClass = 'avatar-cream'; }
+        if (pill.type === 'dressing') { iconClass = 'fa-bandage'; avatarClass = 'avatar-dressing'; }
+
+        // Profil & Günün Vakti Rozetleri
+        const pillProf = profs.find(pr => pr.id === (pill.profileId || 'p1'));
+        const profBadge = pillProf && activeProfileId === 'all'
+          ? `<span class="pill-tag" style="background:${pillProf.color}15; color:${pillProf.color}; font-weight:700;"><i class="fa-solid fa-user"></i> ${escapeHtml(getProfDisplayName(pillProf))}</span>`
+          : '';
+
+        const pillTod = pill.timeOfDay || 'morning';
+        let todLabel = currentLang === 'tr' ? 'Sabah' : 'Morning';
+        let todClass = 'tag-tod-morning';
+        let todIcon = 'fa-cloud-sun';
+        if (pillTod === 'noon') { todLabel = currentLang === 'tr' ? 'Öğlen' : 'Noon'; todClass = 'tag-tod-noon'; todIcon = 'fa-sun'; }
+        else if (pillTod === 'evening') { todLabel = currentLang === 'tr' ? 'Akşam' : 'Evening'; todClass = 'tag-tod-evening'; todIcon = 'fa-cloud-moon'; }
+        else if (pillTod === 'night') { todLabel = currentLang === 'tr' ? 'Gece' : 'Night'; todClass = 'tag-tod-night'; todIcon = 'fa-moon'; }
+        const todBadge = `<span class="pill-tag ${todClass}"><i class="fa-solid ${todIcon}"></i> ${todLabel}</span>`;
+
+        // Stok Durumu
+        const isLowStock = pill.stock <= 5;
+        const pillDisplayName = getPillName(pill);
+        const pillDisplayDosage = getPillDosage(pill);
+
+        const card = document.createElement('div');
+        card.className = `med-card ${isDone ? 'done' : ''}`;
+        card.innerHTML = `
+          <div class="med-left">
+            <div class="type-avatar ${avatarClass}">
+              <i class="fa-solid ${iconClass}"></i>
+            </div>
+            <div class="med-info">
+              <h4>${escapeHtml(pillDisplayName)}</h4>
+              <div class="med-dosage">${escapeHtml(pillDisplayDosage)}</div>
+              <div class="tags-row">
+                ${profBadge}
+                ${todBadge}
+                <span class="pill-tag tag-time"><i class="fa-regular fa-clock"></i> ${pill.time}</span>
+                <span class="pill-tag ${freqClass}"><i class="fa-solid fa-repeat"></i> ${freqText}</span>
+                ${dueBadge}
+                <span class="pill-tag tag-stock ${isLowStock ? 'low' : ''}" onclick="quickRefillStock(${pill.id}, event)" title="${currentLang === 'tr' ? 'Hızlı Stok Ekle / Yenile' : 'Quick Stock Refill'}" style="cursor: pointer;">
+                  <i class="fa-solid fa-box-archive"></i> ${lang.stockTag}: ${pill.stock} <i class="fa-solid fa-plus" style="font-size: 9px; opacity: 0.8; margin-left: 2px;"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="med-right">
+            <button class="btn-check ${isDone ? 'checked' : ''}" onclick="toggleTakenStatus(${pill.id})" title="${isDone ? lang.pendingBadge : lang.takenBadge}">
+              <i class="fa-solid ${isDone ? 'fa-check' : 'fa-circle'}"></i>
+            </button>
+            <button class="btn-edit" onclick="openEditMedicineModal(${pill.id})" title="${lang.btnEditTooltip || (currentLang === 'tr' ? 'Planı Düzenle' : 'Edit Plan')}">
+              <i class="fa-solid fa-pen-to-square"></i>
+            </button>
+            <button class="btn-delete" onclick="deleteMedicinePlan(${pill.id}, '${escapeHtml(pillDisplayName)}')" title="${currentLang === 'tr' ? 'Planı Sil' : 'Delete Plan'}">
+              <i class="fa-regular fa-trash-can"></i>
+            </button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function updateModalLanguage() {
+      const lang = t();
+      const modalTitle = document.getElementById('txt-modal-title') || document.querySelector('.modal-head h3');
+      if (modalTitle) modalTitle.textContent = lang.modalTitle;
+      
+      const typeHead = document.getElementById('txt-type-title-head');
+      if (typeHead) {
+        typeHead.textContent = lang.lblType;
+      } else {
+        const lblType = document.getElementById('lbl-type-title');
+        if (lblType) lblType.textContent = lang.lblType;
+      }
+
+      const lockBadge = document.getElementById('type-lock-badge');
+      if (lockBadge && editingPillId !== null) {
+        lockBadge.innerHTML = `<i class="fa-solid fa-lock" style="margin-right: 4px;"></i> ${lang.typeLockedBadge || (currentLang === 'tr' ? 'Düzenlemede İlaç Türü Sabittir' : 'Type Locked in Edit Mode')}`;
+      }
+      
+      const lblName = document.getElementById('lbl-name-title');
+      if (lblName) lblName.textContent = lang.lblName;
+
+      const lblMeal = document.getElementById('lbl-meal-title');
+      if (lblMeal) {
+        const isFree = selectedType === 'drops' || selectedType === 'spray' || selectedType === 'cream' || selectedType === 'dressing';
+        lblMeal.textContent = isFree ? lang.lblMealFree : lang.lblMeal;
+      }
+
+      const txtTypeTablet = document.getElementById('txt-type-tablet');
+      if (txtTypeTablet) txtTypeTablet.textContent = lang.types.tablet;
+      const txtTypeSyrup = document.getElementById('txt-type-syrup');
+      if (txtTypeSyrup) txtTypeSyrup.textContent = lang.types.syrup;
+      const txtTypeInjection = document.getElementById('txt-type-injection');
+      if (txtTypeInjection) txtTypeInjection.textContent = lang.types.injection;
+      const txtTypeDrops = document.getElementById('txt-type-drops');
+      if (txtTypeDrops) txtTypeDrops.textContent = lang.types.drops;
+      const txtTypeSpray = document.getElementById('txt-type-spray');
+      if (txtTypeSpray) txtTypeSpray.textContent = lang.types.spray;
+      const txtTypeCream = document.getElementById('txt-type-cream');
+      if (txtTypeCream) txtTypeCream.textContent = lang.types.cream;
+      const txtTypeDressing = document.getElementById('txt-type-dressing');
+      if (txtTypeDressing) txtTypeDressing.textContent = lang.types.dressing;
+
+      const txtMealTok = document.getElementById('txt-meal-tok');
+      if (txtMealTok) txtMealTok.textContent = lang.mealTok;
+
+      const txtMealAc = document.getElementById('txt-meal-ac');
+      if (txtMealAc) txtMealAc.textContent = lang.mealAc;
+
+      const txtMealYemekle = document.getElementById('txt-meal-yemekle');
+      if (txtMealYemekle) txtMealYemekle.textContent = lang.mealYemekle;
+
+      const txtMealFarketmez = document.getElementById('txt-meal-farketmez');
+      if (txtMealFarketmez) txtMealFarketmez.textContent = lang.mealFarketmez;
+
+      const lblDosage = document.getElementById('lbl-dosage-title');
+      if (lblDosage) lblDosage.textContent = lang.lblDosage;
+
+      const lblFreq = document.getElementById('lbl-freq-title');
+      if (lblFreq) lblFreq.textContent = lang.lblFreq;
+
+      const lblTod = document.getElementById('lbl-tod-title');
+      if (lblTod) lblTod.textContent = lang.lblTod;
+
+      const lblTime = document.getElementById('lbl-time-text');
+      if (lblTime) lblTime.textContent = lang.lblTime;
+
+      const lblStock = document.getElementById('lbl-stock-text');
+      if (lblStock) lblStock.textContent = lang.lblStock;
+
+      const inpName = document.getElementById('inp-name');
+      if (inpName) inpName.placeholder = lang.namePlaceholder;
+
+      const inpDosage = document.getElementById('inp-dosage');
+      if (inpDosage) inpDosage.placeholder = lang.dosagePlaceholder;
+
+      const inpStock = document.getElementById('inp-stock');
+      if (inpStock) inpStock.placeholder = lang.stockPlaceholder;
+
+      const btnSubmit = document.getElementById('btn-submit-text');
+      if (btnSubmit) btnSubmit.innerHTML = `<i class="fa-solid fa-check"></i> ${lang.submitBtn}`;
+
+      // Türler
+      const typeSpans = document.querySelectorAll('.type-opt span');
+      if (typeSpans.length >= 5) {
+        typeSpans[0].textContent = lang.types.tablet;
+        typeSpans[1].textContent = lang.types.syrup;
+        typeSpans[2].textContent = lang.types.injection;
+        typeSpans[3].textContent = lang.types.drops;
+        typeSpans[4].textContent = lang.types.spray;
+      }
+
+      // Frekans Butonları
+      const chip1 = document.querySelector('#freq-chip-1 span');
+      const chip2 = document.querySelector('#freq-chip-2 span');
+      const chip3 = document.querySelector('#freq-chip-3 span');
+      const chip4 = document.querySelector('#freq-chip-4 span');
+      if (chip1) chip1.textContent = currentLang === 'tr' ? 'Her Gün' : 'Daily';
+      if (chip2) chip2.textContent = currentLang === 'tr' ? '2 Günde' : '2 Days';
+      if (chip3) chip3.textContent = currentLang === 'tr' ? '3 Günde' : '3 Days';
+      if (chip4) chip4.textContent = currentLang === 'tr' ? '4 Günde' : '4 Days';
+
+      const stepperTitle = document.getElementById('stepper-title-text');
+      if (stepperTitle) {
+        stepperTitle.textContent = currentLang === 'tr' ? 'Aralık Belirleyin:' : 'Select Interval:';
+      }
+
+      // Kullanım Vakti Başlık ve Butonları
+      const todTitle = document.getElementById('lbl-tod-title');
+      if (todTitle) todTitle.textContent = currentLang === 'tr' ? 'Günün Vakitleri (Çoklu Seçebilirsiniz)' : 'Times of Day (Multi-Select Allowed)';
+      const todSub = document.getElementById('lbl-tod-sub');
+      if (todSub) todSub.textContent = currentLang === 'tr' ? '(Sabah, Öğle, Akşam, Gece)' : '(Morning, Noon, Evening, Night)';
+      const alarmsTitle = document.getElementById('lbl-alarms-title');
+      if (alarmsTitle) alarmsTitle.textContent = currentLang === 'tr' ? 'Öğün Saatleri & Bağımsız Alarmlar' : 'Dose Timings & Independent Alarms';
+
+      const mSpan = document.getElementById('txt-tod-morning');
+      if (mSpan) mSpan.textContent = lang.todMorning;
+      const nSpan = document.getElementById('txt-tod-noon');
+      if (nSpan) nSpan.textContent = lang.todNoon;
+      const eSpan = document.getElementById('txt-tod-evening');
+      if (eSpan) eSpan.textContent = lang.todEvening;
+      const niSpan = document.getElementById('txt-tod-night');
+      if (niSpan) niSpan.textContent = lang.todNight;
+
+      renderTodTimeInputs();
+
+      updateStepperUI();
+    }
+
+    function selectFreq(freq) {
+      selectedFreq = parseInt(freq);
+      updateStepperUI();
+    }
+
+    function stepFrequency(delta) {
+      selectedFreq = Math.max(1, Math.min(90, selectedFreq + delta));
+      updateStepperUI();
+    }
+
+    function updateStepperUI() {
+      const display = document.getElementById('stepper-val-display');
+      const hint = document.getElementById('stepper-hint-text');
+      if (display) display.textContent = selectedFreq;
+
+      // Chip butonlarının durumunu güncelle
+      for (let i = 1; i <= 4; i++) {
+        const chip = document.getElementById(`freq-chip-${i}`);
+        if (chip) chip.classList.toggle('selected', selectedFreq === i);
+      }
+
+      if (hint) {
+        if (currentLang === 'tr') {
+          hint.textContent = selectedFreq === 1 
+            ? 'Her gün düzenli alınacak' 
+            : `Her ${selectedFreq} günde bir alınacak`;
+        } else {
+          hint.textContent = selectedFreq === 1 
+            ? 'Taken everyday regularly' 
+            : `Taken every ${selectedFreq} days`;
+        }
+      }
+    }
+
+// Duplicate toggleTakenStatus removed.
+
+    function deleteMedicinePlan(id, name) {
+      const lang = t();
+      if (confirm(lang.confirmDelete(name))) {
+        let pills = getPills();
+        pills = pills.filter(p => p.id !== id);
+        savePills(pills);
+        showToast(lang.toastDeleted(name));
+      }
+    }
+
+    function formatFriendlyDate(ymd) {
+      const parts = ymd.split('-');
+      return `${parts[2]}/${parts[1]}`;
+    }
+
+    // Akıllı Dozaj ve Yemek Seçimi Durumları
+    let selectedMeal = 'tok';
+    let selectedDosePreset = '1 Tablet';
+    let dropTarget = 'Her İki Göze';
+    let dropAmount = '2 Damla';
+    let sprayTarget = 'Burun Spreyi';
+    let sprayAmount = 'Her İki Burun Deliğine 1 Fıs';
+
+    function selectMeal(meal) {
+      selectedMeal = meal;
+      document.querySelectorAll('.meal-opt').forEach(opt => opt.classList.remove('selected'));
+      const activeEl = document.getElementById(`meal-${meal}`);
+      if (activeEl) activeEl.classList.add('selected');
+      updateDosageString();
+    }
+
+    function selectDosePreset(preset, el) {
+      selectedDosePreset = preset;
+      document.querySelectorAll('.dosage-chip').forEach(c => c.classList.remove('selected'));
+      if (el) el.classList.add('selected');
+      updateDosageString();
+    }
+
+    function selectDropTarget(target, el) {
+      dropTarget = target;
+      document.querySelectorAll('.target-chip').forEach(c => c.classList.remove('selected'));
+      if (el) el.classList.add('selected');
+      updateDosageString();
+      updateClinicalWarning();
+    }
+
+    function selectDropAmount(amount, el) {
+      dropAmount = amount;
+      document.querySelectorAll('.amount-chip').forEach(c => c.classList.remove('selected'));
+      if (el) el.classList.add('selected');
+      updateDosageString();
+    }
+
+    function selectSprayTarget(target, el) {
+      sprayTarget = target;
+      document.querySelectorAll('.spray-target-chip').forEach(c => c.classList.remove('selected'));
+      if (el) el.classList.add('selected');
+      renderSprayAmounts();
+      updateDosageString();
+      updateClinicalWarning();
+    }
+
+    function selectSprayAmount(amount, el) {
+      sprayAmount = amount;
+      document.querySelectorAll('.spray-amount-chip').forEach(c => c.classList.remove('selected'));
+      if (el) el.classList.add('selected');
+      updateDosageString();
+    }
+
+    function renderSprayAmounts() {
+      const container = document.getElementById('spray-amounts-container');
+      if (!container) return;
+      let amounts = [];
+      if (sprayTarget.includes('Burun') || sprayTarget.includes('Nasal')) {
+        amounts = currentLang === 'tr'
+          ? ['Her İki Deliğe 1 Fıs', 'Her İki Deliğe 2 Fıs', 'Sadece Tıkalı Deliğe 1 Fıs']
+          : ['1 Spray Each Nostril', '2 Sprays Each Nostril', '1 Spray Blocked Nostril'];
+      } else if (sprayTarget.includes('Boğaz') || sprayTarget.includes('Throat')) {
+        amounts = currentLang === 'tr'
+          ? ['Boğaza 1 Fıs (Püskürtme)', 'Boğaza 2 Fıs', 'Boğaza 3 Fıs']
+          : ['1 Spray to Throat', '2 Sprays to Throat', '3 Sprays to Throat'];
+      } else {
+        amounts = currentLang === 'tr'
+          ? ['1 Puf (Derin Nefes)', '2 Puf (1 Dk Arayla)', '1 Puf (Acil Durum)']
+          : ['1 Puff (Deep Inhale)', '2 Puffs (1 Min Apart)', '1 Puff (Emergency)'];
+      }
+      sprayAmount = amounts[0];
+      let html = '<div class="dosage-chip-group">';
+      amounts.forEach((a, idx) => {
+        html += `<div class="dosage-chip spray-amount-chip ${idx === 0 ? 'selected' : ''}" onclick="selectSprayAmount('${a}', this)">${a}</div>`;
+      });
+      html += '</div>';
+      container.innerHTML = html;
+    }
+
+    function updateClinicalWarning() {
+      const box = document.getElementById('clinical-warning-box');
+      const title = document.getElementById('alert-box-title');
+      const desc = document.getElementById('alert-box-desc');
+      if (!box || !title || !desc) return;
+
+      if (selectedType === 'spray') {
+        box.style.display = 'flex';
+        if (sprayTarget.includes('Burun') || sprayTarget.includes('Nasal')) {
+          title.textContent = currentLang === 'tr' ? '⚠️ 5 Gün Kuralı & Çalkalama' : '⚠️ 5-Day Rule & Shake Well';
+          desc.textContent = currentLang === 'tr'
+            ? 'Dekonjestan burun spreylerini kesintisiz 5 günden uzun kullanmayınız (Kronik burun bağımlılığı ve doku hasarı riski). Şişeyi kullanmadan önce çalkalayınız.'
+            : 'Do not use decongestant nasal sprays for more than 5 consecutive days (rebound congestion risk). Shake bottle well before use.';
+        } else if (sprayTarget.includes('Boğaz') || sprayTarget.includes('Throat')) {
+          title.textContent = currentLang === 'tr' ? '⏱️ Emilim & Yeme-İçme Kısıtlaması' : '⏱️ Absorption & NPO Rule';
+          desc.textContent = currentLang === 'tr'
+            ? 'Spreyi sıktıktan sonra ilacın boğaz mukozasında kalabilmesi için 15-20 dakika boyunca su içmeyiniz ve yemek yemeyiniz.'
+            : 'Do not eat or drink for 15-20 minutes after spraying to ensure proper mucosal absorption.';
+        } else {
+          title.textContent = currentLang === 'tr' ? '💧 Ağız Çalkalama & Mantar Koruması' : '💧 Rinse Mouth & Shake Well';
+          desc.textContent = currentLang === 'tr'
+            ? 'Kortizon kaynaklı pamukçuk/mantar oluşumunu önlemek için puf sıktıktan hemen sonra ağzınızı bol suyla çalkalayıp tükürünüz. Tüpü dik tutup çalkalayınız.'
+            : 'Rinse mouth thoroughly with water and spit after inhalation to prevent oral thrush. Shake inhaler well.';
+        }
+      } else if (selectedType === 'drops') {
+        box.style.display = 'flex';
+        if (dropTarget.includes('Göz') || dropTarget.includes('Eye')) {
+          title.textContent = currentLang === 'tr' ? '👁️ Göz Hijyeni & 1 Ay Kuralı' : '👁️ Eye Hygiene & 30-Day Rule';
+          desc.textContent = currentLang === 'tr'
+            ? 'Damlalık ucunu göze veya kirpiklere asla temas ettirmeyiniz (Bakteri bulaşma riski). Damla şişesi açıldıktan sonra en fazla 30 gün kullanılmalıdır.'
+            : 'Never touch dropper tip to eye or eyelashes. Use within 30 days once opened.';
+        } else {
+          title.textContent = currentLang === 'tr' ? '👂 Kulak Damlası Uygulama Açısı' : '👂 Ear Drop Technique';
+          desc.textContent = currentLang === 'tr'
+            ? 'Damlattıktan sonra ilacın kulak zarına ulaşması için başınızı 2-3 dakika yana eğik tutunuz. Baş dönmesini önlemek için damlayı avucunuzda hafif ılıtınız.'
+            : 'Keep head tilted for 2-3 minutes after instilling drops. Warm bottle in hands to avoid dizziness.';
+        }
+      } else if (selectedType === 'injection') {
+        box.style.display = 'flex';
+        title.textContent = currentLang === 'tr' ? '💉 Hijyen & Bölge Rotasyonu' : '💉 Hygiene & Site Rotation';
+        desc.textContent = currentLang === 'tr'
+          ? 'Enjeksiyon bölgesini alkollü pamukla temizleyip kurumasını bekleyiniz. Doku sertleşmesini (lipohipertrofi) önlemek için her seferinde uygulama bölgesini değiştiriniz.'
+          : 'Clean injection site with alcohol. Rotate injection sites regularly to avoid lipohypertrophy.';
+      } else if (selectedType === 'cream') {
+        box.style.display = 'flex';
+        title.textContent = currentLang === 'tr' ? '🧴 Haricen Kullanım & Hijyen Kuralı' : '🧴 External Use & Hygiene Rule';
+        desc.textContent = currentLang === 'tr'
+          ? 'Sadece harici kullanım içindir; göz, ağız ve açık yarayla temas ettirmeyiniz. Kortizonlu kremleri doktor önerisinden uzun süre geniş alanlara uygulamayınız. Uygulama sonrası ellerinizi yıkayınız.'
+          : 'For cutaneous use only. Avoid contact with eyes and mucosal membranes. Do not use corticosteroid creams on large surface areas longer than prescribed. Wash hands after application.';
+      } else if (selectedType === 'dressing') {
+        box.style.display = 'flex';
+        title.textContent = currentLang === 'tr' ? '🩹 Sterilite & Yara Hijyen Kuralı' : '🩹 Sterility & Wound Hygiene Rule';
+        desc.textContent = currentLang === 'tr'
+          ? 'Pansuman öncesi ellerinizi en az 20 saniye sabunla yıkayınız. Steril gazlı beze çıplak elle dokunmayınız. Dikiş ve yara bölgesini suyla temas ettirmeyiniz ve kuru tutunuz.'
+          : 'Wash hands thoroughly with soap for 20 seconds before dressing. Do not touch sterile pads directly. Keep surgical sutures and wound area dry.';
+      } else {
+        box.style.display = 'none';
+      }
+    }
+
+    function renderDynamicDosagePanel() {
+      const panel = document.getElementById('dynamic-dosage-panel');
+      if (!panel) return;
+      panel.innerHTML = '';
+
+      const mealYemekle = document.getElementById('meal-yemekle');
+      const lblMeal = document.getElementById('lbl-meal-title');
+
+      // Damla, Sprey, Krem ve Pansuman için yemek durumu bağımsızdır
+      const isTopicalOrFree = selectedType === 'drops' || selectedType === 'spray' || selectedType === 'cream' || selectedType === 'dressing';
+      if (isTopicalOrFree) {
+        if (mealYemekle) mealYemekle.style.display = 'none';
+        if (selectedMeal === 'yemekle') {
+          selectMeal('farketmez');
+        }
+        if (lblMeal) {
+          lblMeal.textContent = t().lblMealFree;
+        }
+      } else {
+        if (mealYemekle) mealYemekle.style.display = 'block';
+        if (lblMeal) {
+          lblMeal.textContent = t().lblMeal;
+        }
+      }
+
+      if (selectedType === 'tablet') {
+        const presets = currentLang === 'tr' 
+          ? ['½ Tablet', '1 Tablet', '1.5 Tablet', '2 Tablet']
+          : ['½ Tablet', '1 Tablet', '1.5 Tablets', '2 Tablets'];
+        selectedDosePreset = presets[1]; // default: 1 Tablet
+
+        let html = '<div class="dosage-chip-group">';
+        presets.forEach((p, idx) => {
+          html += `<div class="dosage-chip ${idx === 1 ? 'selected' : ''}" onclick="selectDosePreset('${p}', this)">${p}</div>`;
+        });
+        html += '</div>';
+        panel.innerHTML = html;
+      } 
+      else if (selectedType === 'syrup') {
+        const presets = currentLang === 'tr'
+          ? ['½ Ölçek (2.5 ml)', '1 Ölçek (5 ml)', '1.5 Ölçek (7.5 ml)', '2 Ölçek (10 ml)']
+          : ['½ Spoon (2.5 ml)', '1 Spoon (5 ml)', '1.5 Spoons (7.5 ml)', '2 Spoons (10 ml)'];
+        selectedDosePreset = presets[1]; // default: 1 Ölçek
+
+        let html = '<div class="dosage-chip-group">';
+        presets.forEach((p, idx) => {
+          html += `<div class="dosage-chip ${idx === 1 ? 'selected' : ''}" onclick="selectDosePreset('${p}', this)">${p}</div>`;
+        });
+        html += '</div>';
+        panel.innerHTML = html;
+      }
+      else if (selectedType === 'drops') {
+        // Sadece Göz ve Kulak (Burun Spreye taşındı!)
+        const targets = currentLang === 'tr'
+          ? ['Her İki Göze', 'Sağ Göze', 'Sol Göze', 'Her İki Kulağa', 'Sağ Kulağa', 'Sol Kulağa']
+          : ['Both Eyes', 'Right Eye', 'Left Eye', 'Both Ears', 'Right Ear', 'Left Ear'];
+        const amounts = currentLang === 'tr'
+          ? ['1 Damla', '2 Damla', '3 Damla', '5 Damla']
+          : ['1 Drop', '2 Drops', '3 Drops', '5 Drops'];
+
+        dropTarget = targets[1]; // Varsayılan: Sağ Göze / Right Eye
+        dropAmount = amounts[1]; // Varsayılan: 2 Damla / 2 Drops
+
+        const areaLbl = currentLang === 'tr' ? 'Uygulama Bölgesi (Göz / Kulak):' : 'Application Area (Eye / Ear):';
+        const amountLbl = currentLang === 'tr' ? 'Damla Miktarı:' : 'Drop Amount:';
+
+        let html = `<div style="margin-bottom: 6px;"><small style="font-size: 11px; font-weight:700; color:#64748B;">${areaLbl}</small></div>`;
+        html += '<div class="dosage-chip-group">';
+        targets.forEach((t, idx) => {
+          html += `<div class="dosage-chip target-chip ${idx === 1 ? 'selected' : ''}" onclick="selectDropTarget('${t}', this)">${t}</div>`;
+        });
+        html += '</div>';
+
+        html += `<div style="margin: 8px 0 6px 0;"><small style="font-size: 11px; font-weight:700; color:#64748B;">${amountLbl}</small></div>`;
+        html += '<div class="dosage-chip-group">';
+        amounts.forEach((a, idx) => {
+          html += `<div class="dosage-chip amount-chip ${idx === 1 ? 'selected' : ''}" onclick="selectDropAmount('${a}', this)">${a}</div>`;
+        });
+        html += '</div>';
+
+        panel.innerHTML = html;
+      }
+      else if (selectedType === 'spray') {
+        // Yeni Sprey & İnhalatör Tipi
+        const targets = currentLang === 'tr'
+          ? ['Burun Spreyi', 'Boğaz / Ağız Spreyi', 'Astım İnhalatörü (Puf)']
+          : ['Nasal Spray', 'Throat Spray', 'Asthma Inhaler (Puff)'];
+
+        sprayTarget = targets[0]; // Burun Spreyi / Nasal Spray
+
+        const sprayTypeLbl = currentLang === 'tr' ? 'Sprey / İnhalatör Türü:' : 'Spray / Inhaler Type:';
+        const sprayDoseLbl = currentLang === 'tr' ? 'Dozaj (Püskürtme / Puf):' : 'Dosage (Spray / Puff):';
+
+        let html = `<div style="margin-bottom: 6px;"><small style="font-size: 11px; font-weight:700; color:#64748B;">${sprayTypeLbl}</small></div>`;
+        html += '<div class="dosage-chip-group">';
+        targets.forEach((t, idx) => {
+          html += `<div class="dosage-chip spray-target-chip ${idx === 0 ? 'selected' : ''}" onclick="selectSprayTarget('${t}', this)">${t}</div>`;
+        });
+        html += '</div>';
+
+        html += `<div style="margin: 8px 0 6px 0;"><small style="font-size: 11px; font-weight:700; color:#64748B;">${sprayDoseLbl}</small></div>`;
+        html += '<div id="spray-amounts-container"></div>';
+
+        panel.innerHTML = html;
+        renderSprayAmounts();
+      }
+      else if (selectedType === 'injection') {
+        const presets = currentLang === 'tr'
+          ? ['1 Ampul', '½ Ampul', '1 Hazır Şırınga', '10 Ünite İnsülin', '1 Doz']
+          : ['1 Ampoule', '½ Ampoule', '1 Prefilled Syringe', '10 Units Insulin', '1 Dose'];
+        selectedDosePreset = presets[0]; // default: 1 Ampul
+
+        let html = '<div class="dosage-chip-group">';
+        presets.forEach((p, idx) => {
+          html += `<div class="dosage-chip ${idx === 0 ? 'selected' : ''}" onclick="selectDosePreset('${p}', this)">${p}</div>`;
+        });
+        html += '</div>';
+        panel.innerHTML = html;
+      }
+      else if (selectedType === 'cream') {
+        const presets = currentLang === 'tr'
+          ? ['İnce Tabaka (Parmak Ucu)', 'Nohut Büyüklüğünde', 'Geniş Yüzeye Yayarak', 'Masaj Yaparak Sürünüz']
+          : ['Thin Layer (Fingertip)', 'Pea-Sized Amount', 'Spread Over Area', 'Gently Rub In'];
+        selectedDosePreset = presets[0];
+
+        let html = '<div class="dosage-chip-group">';
+        presets.forEach((p, idx) => {
+          html += `<div class="dosage-chip ${idx === 0 ? 'selected' : ''}" onclick="selectDosePreset('${p}', this)">${p}</div>`;
+        });
+        html += '</div>';
+        panel.innerHTML = html;
+      }
+      else if (selectedType === 'dressing') {
+        const presets = currentLang === 'tr'
+          ? ['Steril Gazlı Bez Değişimi', 'Antiseptik Solüsyon + Gazlı Bez', 'Yara Bandı Değişimi', 'Elastik Bandaj Yenileme']
+          : ['Sterile Gauze Replacement', 'Antiseptic Solution + Gauze', 'Adhesive Bandage Change', 'Elastic Bandage Renewal'];
+        selectedDosePreset = presets[0];
+
+        let html = '<div class="dosage-chip-group">';
+        presets.forEach((p, idx) => {
+          html += `<div class="dosage-chip ${idx === 0 ? 'selected' : ''}" onclick="selectDosePreset('${p}', this)">${p}</div>`;
+        });
+        html += '</div>';
+        panel.innerHTML = html;
+      }
+
+      updateDosageString();
+      updateClinicalWarning();
+    }
+
+    function toggleTimeOfDay(slot) {
+      if (selectedTimesOfDay.has(slot)) {
+        if (selectedTimesOfDay.size <= 1) {
+          showToast(currentLang === 'tr' ? 'En az bir kullanım vakti seçilmelidir.' : 'At least one time of day must be selected.');
+          return;
+        }
+        selectedTimesOfDay.delete(slot);
+      } else {
+        selectedTimesOfDay.add(slot);
+      }
+      updateTimeOfDayChipsUI();
+      renderTodTimeInputs();
+      updateDosageString();
+    }
+
+    function updateTimeOfDayChipsUI() {
+      ['morning', 'noon', 'evening', 'night'].forEach(slot => {
+        const el = document.getElementById(`tod-${slot}`);
+        if (el) el.classList.toggle('selected', selectedTimesOfDay.has(slot));
+      });
+    }
+
+    function renderTodTimeInputs() {
+      const container = document.getElementById('tod-times-container');
+      if (!container) return;
+      let html = '';
+      const order = ['morning', 'noon', 'evening', 'night'];
+      order.forEach(slot => {
+        if (selectedTimesOfDay.has(slot)) {
+          const m = todMeta[slot];
+          const label = currentLang === 'tr' ? m.label_tr : m.label_en;
+          const existingInp = document.getElementById(`inp-time-${slot}`);
+          const curVal = existingInp ? existingInp.value : m.defTime;
+          html += `
+            <div style="display: flex; justify-content: space-between; align-items: center; background: #F8FAFC; border: 1.5px solid #E2E8F0; padding: 10px 14px; border-radius: 12px;">
+              <span style="font-size: 13px; font-weight: 700; color: #334155; display: flex; align-items: center; gap: 8px;">
+                <span style="background: ${m.bg}; color: ${m.color}; width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px;">
+                  <i class="fa-solid ${m.icon}"></i>
+                </span>
+                ${label}
+              </span>
+              <input type="time" id="inp-time-${slot}" value="${curVal}" class="inp" style="width: 115px; margin: 0; padding: 6px 10px; font-weight: 800; text-align: center; font-size: 14px;" required>
+            </div>
+          `;
+        }
+      });
+      container.innerHTML = html;
+    }
+
+    function updateDosageString() {
+      let mealSuffix = '';
+      if (currentLang === 'tr') {
+        if (selectedMeal === 'tok') mealSuffix = 'Tok karnına';
+        else if (selectedMeal === 'ac') mealSuffix = 'Aç karnına';
+        else if (selectedMeal === 'yemekle') mealSuffix = 'Yemekle birlikte';
+        else if (selectedMeal === 'farketmez') mealSuffix = 'Farketmez';
+      } else {
+        if (selectedMeal === 'tok') mealSuffix = 'After meals';
+        else if (selectedMeal === 'ac') mealSuffix = 'Before meals';
+        else if (selectedMeal === 'yemekle') mealSuffix = 'With food';
+        else if (selectedMeal === 'farketmez') mealSuffix = 'Anytime';
+      }
+
+      let todPrefix = '';
+      const selectedArr = Array.from(selectedTimesOfDay);
+      if (currentLang === 'tr') {
+        const trLabels = { morning: 'Sabah', noon: 'Öğle', evening: 'Akşam', night: 'Gece' };
+        if (selectedArr.length === 4) {
+          todPrefix = 'Günde 4 Kez (Tüm Öğünler)';
+        } else {
+          todPrefix = selectedArr.map(s => trLabels[s]).join(' & ');
+        }
+      } else {
+        const enLabels = { morning: 'Morning', noon: 'Noon', evening: 'Evening', night: 'Night' };
+        if (selectedArr.length === 4) {
+          todPrefix = '4 Times Daily (All Doses)';
+        } else {
+          todPrefix = selectedArr.map(s => enLabels[s]).join(' & ');
+        }
+      }
+
+      let fullDosage = '';
+      if (selectedType === 'drops') {
+        fullDosage = currentLang === 'tr' 
+          ? `${dropTarget} ${dropAmount} (${todPrefix} • ${mealSuffix})`
+          : `${dropAmount} in ${dropTarget} (${todPrefix} • ${mealSuffix})`;
+      } else if (selectedType === 'spray') {
+        fullDosage = `${sprayTarget} • ${sprayAmount} (${todPrefix} • ${mealSuffix})`;
+      } else if (selectedType === 'cream') {
+        fullDosage = currentLang === 'tr'
+          ? `Krem: ${selectedDosePreset} (${todPrefix})`
+          : `Cream: ${selectedDosePreset} (${todPrefix})`;
+      } else if (selectedType === 'dressing') {
+        fullDosage = currentLang === 'tr'
+          ? `Pansuman: ${selectedDosePreset} (${todPrefix})`
+          : `Dressing: ${selectedDosePreset} (${todPrefix})`;
+      } else {
+        fullDosage = `${selectedDosePreset} (${todPrefix} • ${mealSuffix})`;
+      }
+
+      const inp = document.getElementById('inp-dosage');
+      if (inp) {
+        inp.value = fullDosage;
+      }
+    }
+
+    // Modal Yönetimi (Ekleme & ✏️ Düzenleme Modu)
+    let editingPillId = null;
+
+    function openAddMedicineModal() {
+      editingPillId = null;
+      document.getElementById('add-med-form').reset();
+      
+      const lang = t();
+      const modalTitle = document.getElementById('txt-modal-title') || document.querySelector('.modal-head h3');
+      if (modalTitle) modalTitle.textContent = lang.modalTitle;
+      const submitBtn = document.getElementById('btn-submit-text') || document.getElementById('btn-submit-med');
+      if (submitBtn) submitBtn.textContent = lang.submitBtn;
+
+      // İlaç Türü Seçiminin Kilidini Aç
+      const typeGrid = document.querySelector('.type-grid');
+      if (typeGrid) {
+        typeGrid.style.pointerEvents = 'auto';
+        typeGrid.style.opacity = '1';
+      }
+      const lockBadge = document.getElementById('type-lock-badge');
+      if (lockBadge) {
+        lockBadge.style.display = 'none';
+      }
+
+      document.getElementById('add-modal-backdrop').classList.add('active');
+      selectedTimesOfDay = new Set(['morning']);
+      updateTimeOfDayChipsUI();
+      renderTodTimeInputs();
+      selectType('tablet');
+      selectedFreq = 1;
+      updateStepperUI();
+      document.getElementById('inp-name').focus();
+    }
+
+    function openEditMedicineModal(id) {
+      const pills = getPills();
+      const pill = pills.find(p => p.id === id);
+      if (!pill) return;
+
+      editingPillId = id;
+      const lang = t();
+      const modalTitle = document.getElementById('txt-modal-title') || document.querySelector('.modal-head h3');
+      if (modalTitle) modalTitle.textContent = lang.modalEditTitle || (currentLang === 'tr' ? 'İlaç / Tedavi Planını Düzenle' : 'Edit Medicine / Care Plan');
+      const submitBtn = document.getElementById('btn-submit-text') || document.getElementById('btn-submit-med');
+      if (submitBtn) submitBtn.textContent = lang.submitEditBtn || (currentLang === 'tr' ? 'Değişiklikleri Kaydet' : 'Save Changes');
+
+      document.getElementById('inp-name').value = pill.name_tr || pill.name;
+      document.getElementById('inp-stock').value = pill.stock;
+      document.getElementById('inp-dosage').value = pill.dosage_tr || pill.dosage;
+
+      selectedTimesOfDay = new Set([pill.timeOfDay || 'morning']);
+      updateTimeOfDayChipsUI();
+      renderTodTimeInputs();
+
+      // İlgili öğünün saat inputunu ilacın mevcut saatiyle doldur
+      const todInput = document.getElementById(`time-input-${pill.timeOfDay || 'morning'}`) || document.getElementById('inp-time');
+      if (todInput) todInput.value = pill.time;
+
+      selectedFreq = pill.freq || 1;
+      updateStepperUI();
+
+      // İlaç Türünü seç ve KİLİTLE (Tıklanabilir kalır, tıklandığında kullanıcıya uyarı gösterilir!)
+      selectType(pill.type || 'tablet');
+      const typeGrid = document.querySelector('.type-grid');
+      if (typeGrid) {
+        typeGrid.style.pointerEvents = 'auto'; // Tıklanabilir bırakıyoruz ki uyarı fonksiyonumuz tetiklensin!
+        typeGrid.style.opacity = '1';
+      }
+      const lockBadge = document.getElementById('type-lock-badge');
+      if (lockBadge) {
+        lockBadge.style.display = 'inline-flex';
+        lockBadge.style.cursor = 'pointer';
+        lockBadge.onclick = showLockedTypeAlert;
+        lockBadge.innerHTML = `<i class="fa-solid fa-lock" style="margin-right: 4px;"></i> ${currentLang === 'tr' ? 'Düzenlemede İlaç Türü Sabittir' : 'Type Locked in Edit Mode'}`;
+      }
+
+      document.getElementById('add-modal-backdrop').classList.add('active');
+    }
+
+    function closeAddMedicineModal() {
+      document.getElementById('add-modal-backdrop').classList.remove('active');
+      document.getElementById('add-med-form').reset();
+      editingPillId = null;
+      const typeGrid = document.querySelector('.type-grid');
+      if (typeGrid) {
+        typeGrid.style.pointerEvents = 'auto';
+        typeGrid.style.opacity = '1';
+      }
+      const lockBadge = document.getElementById('type-lock-badge');
+      if (lockBadge) {
+        lockBadge.style.display = 'none';
+      }
+    }
+
+        function showLockedTypeAlert() {
+      const lang = t();
+      const title = lang.typeLockedAlertTitle || (currentLang === 'tr' ? '⚠️ İLAÇ TÜRÜ DEĞİŞTİRİLEMEZ' : '⚠️ MEDICINE TYPE CANNOT BE CHANGED');
+      const msg = lang.typeLockedAlertMsg || (currentLang === 'tr'
+        ? 'Kayıtlı bir planın ilaç türü (Tablet, Damla, Şurup vb.) güvenlik kuralları ve dozaj bütünlüğü nedeniyle düzenleme sırasında değiştirilemez.\n\nFarklı bir ilaç türü ayarlamak istiyorsanız lütfen bu planı silip yeni bir plan oluşturunuz.'
+        : 'The formulation type (Tablet, Drops, Syrup, etc.) of an existing plan cannot be modified in edit mode to preserve clinical dosage integrity.\n\nTo use a different medicine type, please delete this plan and add a new one.');
+
+      alert(`${title}\n\n${msg}`);
+      showToast(currentLang === 'tr' ? '⚠️ İlaç türü düzenlemede sabittir. Yeni plan ekleyiniz.' : '⚠️ Medicine type is locked. Add a new plan to change type.');
+    }
+
+    function selectType(type, el) {
+      if (editingPillId !== null && type !== selectedType) {
+        showLockedTypeAlert();
+        return;
+      }
+      selectedType = type;
+      document.querySelectorAll('.type-opt').forEach(opt => opt.classList.remove('selected'));
+      const activeEl = el || document.getElementById(`type-opt-${type}`) || document.querySelector(`.type-opt[onclick*="${type}"]`);
+      if (activeEl) activeEl.classList.add('selected');
+      renderDynamicDosagePanel();
+      updateClinicalWarning();
+    }
+
+    function saveMedicine(e) {
+      e.preventDefault();
+      const name = document.getElementById('inp-name').value.trim();
+      const dosageBase = document.getElementById('inp-dosage').value.trim();
+      const stock = parseInt(document.getElementById('inp-stock').value) || 30;
+
+      if (!name || !dosageBase || selectedTimesOfDay.size === 0) return;
+
+      const pills = getPills();
+
+      // --- EĞER DÜZENLEME MODUNDAYSA (EDIT MODE) ---
+      if (editingPillId !== null) {
+        const pill = pills.find(p => p.id === editingPillId);
+        if (pill) {
+          pill.name = name;
+          pill.name_tr = name;
+          pill.name_en = name;
+          pill.dosage = dosageBase;
+          pill.dosage_tr = dosageBase;
+          pill.dosage_en = dosageBase;
+          pill.type = selectedType;
+          pill.stock = stock;
+          pill.freq = selectedFreq;
+
+          // Güncellenen saat
+          const selectedArr = Array.from(selectedTimesOfDay);
+          const activeTod = selectedArr[0] || pill.timeOfDay || 'morning';
+          pill.timeOfDay = activeTod;
+          const timeInp = document.getElementById(`time-input-${activeTod}`) || document.getElementById('inp-time');
+          if (timeInp && timeInp.value) {
+            pill.time = timeInp.value;
+          }
+
+          // Eğer bir grubun parçasıysa gruptaki tüm kartların ortak stoğunu ve sıklığını da güncelle
+          if (pill.groupId) {
+            pills.forEach(p => {
+              if (p.groupId === pill.groupId) {
+                p.stock = stock;
+                p.freq = selectedFreq;
+              }
+            });
+          }
+
+          savePills(pills);
+          closeAddMedicineModal();
+          showToast(currentLang === 'tr' ? 'Plan başarıyla güncellendi.' : 'Plan updated successfully.');
+          renderApp();
+          return;
+        }
+      }
+
+      const groupId = 'grp_' + Date.now();
+      const selectedArr = Array.from(selectedTimesOfDay);
+      const timesSummary = [];
+
+      selectedArr.forEach(slot => {
+        const timeInp = document.getElementById(`inp-time-${slot}`);
+        const slotTime = timeInp ? timeInp.value : todMeta[slot].defTime;
+        timesSummary.push(slotTime);
+        const newId = pills.length > 0 ? Math.max(...pills.map(p => p.id)) + 1 : 1;
+
+        const slotLabelTr = { morning: 'Sabah Dozu', noon: 'Öğle Dozu', evening: 'Akşam Dozu', night: 'Gece Dozu' }[slot];
+        const slotLabelEn = { morning: 'Morning Dose', noon: 'Noon Dose', evening: 'Evening Dose', night: 'Night Dose' }[slot];
+
+        const newPill = {
+          id: newId,
+          groupId: groupId,
+          profileId: activeProfileId === 'all' ? 'p1' : activeProfileId,
+          name: name,
+          name_tr: name,
+          name_en: name,
+          type: selectedType,
+          dosage: `${dosageBase} [${currentLang === 'tr' ? slotLabelTr : slotLabelEn}]`,
+          dosage_tr: `${dosageBase} [${slotLabelTr}]`,
+          dosage_en: `${dosageBase} [${slotLabelEn}]`,
+          time: slotTime,
+          timeOfDay: slot,
+          freq: selectedFreq,
+          stock: stock,
+          nextDueDate: getTodayYMD(),
+          lastTakenDate: "",
+          isTaken: 0
+        };
+
+        pills.push(newPill);
+      });
+
+      savePills(pills);
+      closeAddMedicineModal();
+
+      const timeListStr = timesSummary.join(', ');
+      const successMsg = currentLang === 'tr'
+        ? `${name} için ${selectedArr.length} öğün alarmı (${timeListStr}) kuruldu! Kalan stok: ${stock}`
+        : `${selectedArr.length} dose alarms set for ${name} (${timeListStr})! Remaining stock: ${stock}`;
+      showToast(successMsg);
+
+      const alertTitle = currentLang === 'tr' ? `Yeni Plan Kuruldu: ${name}` : `New Plan Scheduled: ${name}`;
+      const alertDesc = currentLang === 'tr' ? `${selectedArr.length} öğün (${timeListStr}) bildirilecek.` : `${selectedArr.length} doses (${timeListStr}) scheduled.`;
+      triggerSoundNotification(alertTitle, alertDesc);
+    }
+
+    // Akıllı İlaç Alındı / Durum Mantığı (Öğün Belirtmeli Toast + Erken Doz Kilidi + Ortak Stok)
+    function toggleTakenStatus(id) {
+      const pills = getPills();
+      const pill = pills.find(p => p.id === id);
+      if (!pill) return;
+      const lang = t();
+      const pName = getPillName(pill);
+      const slotLabel = getPillSlotLabel(pill);
+      const fullPillName = `${pName} (${slotLabel})`;
+      const todayYMD = getTodayYMD();
+
+      // Ortak stok havuzu: Aynı ilacın diğer öğünleri de aynı kutudan eksilir!
+      const linkedPills = pill.groupId 
+        ? pills.filter(p => p.groupId === pill.groupId)
+        : pills.filter(p => p.name.toLowerCase() === pill.name.toLowerCase() && (p.profileId || 'p1') === (pill.profileId || 'p1'));
+
+      if (pill.isTaken === 0) {
+        // --- KLİNİK ERKEN DOZ KORUMA SİSTEMİ (EARLY DOSE GUARDRAIL) ---
+        const now = new Date();
+        const currentMins = now.getHours() * 60 + now.getMinutes();
+        const timeParts = (pill.time || "08:00").split(':').map(Number);
+        const schedMins = timeParts[0] * 60 + timeParts[1];
+        const diffMins = schedMins - currentMins;
+
+        // Eğer planlanan saate 45 dakikadan daha fazla süre varsa erkenden alınmasına KESİNLİKLE İZİN VERME!
+        if (diffMins > 45) {
+          const hoursLeft = Math.floor(diffMins / 60);
+          const minsLeft = diffMins % 60;
+          const leftStr = hoursLeft > 0
+            ? (currentLang === 'tr' ? `${hoursLeft} saat ${minsLeft} dakika` : `${hoursLeft}h ${minsLeft}m`)
+            : (currentLang === 'tr' ? `${minsLeft} dakika` : `${minsLeft} mins`);
+
+          const earlyMsg = currentLang === 'tr'
+            ? `⚠️ İLAÇ / TEDAVİ VAKTİ HENÜZ GELMEDİ!\n\n"${fullPillName}" için planlanan saat: ${pill.time} (Kalan süre: ${leftStr}).\n\nKlinik güvenlik kuralları gereği, vaktinden çok önce ilaç almak doz aşımına ve yan etki riskine yol açar. Bu nedenle sistem erken işleme izin vermez.\n\nEğer planlanan saati yanlış girdiyseniz lütfen kart üzerindeki ✏️ (Düzenle) butonu ile saati güncelleyiniz.`
+            : `⚠️ TOO EARLY TO TAKE MEDICATION!\n\nScheduled dose for "${fullPillName}" is at ${pill.time} (${leftStr} remaining).\n\nTo prevent accidental overdosing, medications cannot be marked as taken ahead of time.\n\nIf you entered the wrong time, please tap the ✏️ (Edit) button on the card to update the schedule.`;
+
+          alert(earlyMsg);
+          return;
+        }
+
+        // İlaç ALINDI!
+        pill.isTaken = 1;
+        pill.lastTakenDate = todayYMD;
+
+        // Ortak stoğu 1 azalt
+        linkedPills.forEach(lp => {
+          if (lp.stock > 0) lp.stock -= 1;
+        });
+
+        // Geçmiş günlüğe ekle!
+        addHistoryEntry(pill);
+
+        // Kullanıcının belirlediği periyot (2 gün, 4 gün vb.) kadar sonraya planla!
+        if (pill.freq > 1) {
+          pill.nextDueDate = getOffsetDateYMD(pill.freq);
+          showToast(lang.toastTakenDays(fullPillName, pill.freq));
+        } else {
+          showToast(lang.toastTaken(fullPillName));
+        }
+
+        // Stok uyarısı kontrolü
+        if (pill.stock <= 3) {
+          setTimeout(() => {
+            triggerSoundNotification(
+              currentLang === 'tr' ? `Stok Azaldı: ${fullPillName}` : `Low Stock: ${fullPillName}`,
+              currentLang === 'tr' ? `Kalan: sadece ${pill.stock} adet. Eczaneden almayı unutmayın!` : `Remaining: only ${pill.stock}. Refill soon!`
+            );
+          }, 1000);
+        }
+      } else {
+        // Geri al (Bekliyor yap)
+        pill.isTaken = 0;
+        pill.lastTakenDate = "";
+        linkedPills.forEach(lp => {
+          lp.stock += 1;
+        });
+        showToast(lang.toastPending(fullPillName));
+      }
+
+      savePills(pills);
+    }
+
+    // Bildirim ve Ses Tetikleme
+    function triggerSoundNotification(title, desc) {
+      playBell();
+      if ('vibrate' in navigator) {
+        navigator.vibrate([300, 150, 300, 150, 400]);
+      }
+
+      // iOS Sistem Bildirimi
+      if ('Notification' in window && Notification.permission === 'granted') {
+        try {
+          new Notification(title, {
+            body: desc,
+            icon: 'https://cdn-icons-png.flaticon.com/512/883/883360.png'
+          });
+        } catch (e) {}
+      }
+
+      // Dynamic Island Banner
+      const banner = document.getElementById('island-banner');
+      document.getElementById('island-title').textContent = title;
+      document.getElementById('island-desc').textContent = desc;
+      banner.classList.add('visible');
+      setTimeout(() => {
+        banner.classList.remove('visible');
+      }, 5200);
+    }
+
+    function testFastAlarm() {
+      initAudio();
+      showToast(currentLang === 'tr' ? '5 saniye sonra alarm çalacak...' : 'Alarm will trigger in 5 seconds...');
+      setTimeout(() => {
+        const testTitle = currentLang === 'tr' ? 'İlaç Vakti: Test Dozu' : 'Medicine Due: Test Dose';
+        const testDesc = currentLang === 'tr' ? 'Doz: 1 Tablet - Alarm sistemi başarıyla çalıştı!' : 'Dose: 1 Tablet - Alarm system working perfectly!';
+        triggerSoundNotification(testTitle, testDesc);
+      }, 5000);
+    }
+
+    // Canlı Saat Kontrol Döngüsü
+    setInterval(() => {
+      const now = new Date();
+      const hh = String(now.getHours()).padStart(2, '0');
+      const mm = String(now.getMinutes()).padStart(2, '0');
+      const currentHM = `${hh}:${mm}`;
+
+      // Saat kutusunu güncelle
+      document.getElementById('clock-display').textContent = currentHM;
+
+      // Gece yarısı / yeni takvim günü otomatik sıfırlama kontrolü
+      checkAndResetDailyPills();
+
+      if (lastAlarmMinute === currentHM) return;
+
+      const todayYMD = getTodayYMD();
+      const pills = getPills();
+      const duePill = pills.find(p => p.time === currentHM && p.nextDueDate <= todayYMD && p.isTaken === 0);
+
+      if (duePill) {
+        lastAlarmMinute = currentHM;
+        const dueName = getPillName(duePill);
+        const dueDose = getPillDosage(duePill);
+        const alertTitle = currentLang === 'tr' ? `İlaç Vakti: ${dueName}` : `Medicine Due: ${dueName}`;
+        const alertDesc = currentLang === 'tr' ? `Doz: ${dueDose} almayı unutmayın!` : `Time to take: ${dueDose}!`;
+        triggerSoundNotification(alertTitle, alertDesc);
+      }
+    }, 1000);
+
+    function showToast(msg) {
+      const box = document.getElementById('toast-box');
+      box.textContent = msg;
+      box.classList.add('show');
+      setTimeout(() => {
+        box.classList.remove('show');
+      }, 2600);
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      renderApp();
+
+      // Deep Linking & Automated Screenshot URL Parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('screenshot') === '1') {
+        document.body.classList.add('screenshot-mode');
+      }
+      if (urlParams.get('lang')) {
+        currentLang = urlParams.get('lang');
+        localStorage.setItem(LANG_KEY, currentLang);
+        renderApp();
+        updateModalLanguage();
+      }
+      if (urlParams.get('tab')) {
+        switchTab(urlParams.get('tab'));
+      }
+      if (urlParams.get('modal') === 'profile') {
+        openProfileSheet();
+      }
+      if (urlParams.get('modal') === 'add') {
+        openAddMedicineModal();
+        const typeParam = urlParams.get('type');
+        if (typeParam) {
+          const el = document.querySelector(`.type-opt[onclick*="${typeParam}"]`);
+          if (el) selectType(typeParam, el);
+        }
+      }
+    });
+  </script>
+  <!-- Doctor Report Preview & Detail Modal Sheet -->
+  <div class="modal-backdrop" id="doctor-report-backdrop">
+    <div class="modal-box" style="max-height: 88vh; display: flex; flex-direction: column; padding: 22px 18px 18px 18px;">
+      <div class="modal-head" style="border-bottom: 1.5px solid var(--border); padding-bottom: 12px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="width: 36px; height: 36px; border-radius: 10px; background: #E0F2FE; color: #0284C7; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+            <i class="fa-solid fa-file-medical"></i>
+          </div>
+          <div>
+            <h3 id="txt-doc-modal-title" style="font-size: 16px; font-weight: 800; margin: 0; color: #0F172A;">Klinik Hekim & Tedavi Raporu</h3>
+            <span id="txt-doc-modal-sub" style="font-size: 11px; color: #64748B;">Hekim Paylaşımı ve Hasta Uyum Özeti</span>
+          </div>
+        </div>
+        <button class="close-btn" onclick="closeDoctorReportModal()">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="modal-body" style="overflow-y: auto; flex: 1; padding-right: 4px;">
+        <!-- Clinical Overview Meta Card -->
+        <div id="doc-report-meta-card" style="background: #F8FAFC; border: 1.5px solid #E2E8F0; border-radius: 14px; padding: 12px 14px; margin-bottom: 14px; font-size: 12px;">
+          <!-- Dynamically injected -->
+        </div>
+
+        <!-- Breakdown List -->
+        <div id="doc-report-items-container">
+          <!-- Dynamically injected -->
+        </div>
+
+        <!-- Formatted WhatsApp Monospace Box -->
+        <div style="margin-top: 14px;">
+          <label style="font-size: 11px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 6px;" id="lbl-doc-raw-text">Hekim / WhatsApp Metin Özeti:</label>
+          <textarea id="doc-report-raw-textarea" readonly style="width: 100%; height: 110px; font-family: 'JetBrains Mono', monospace; font-size: 11px; background: #F1F5F9; border: 1px solid #CBD5E1; border-radius: 10px; padding: 10px; color: #334155; resize: none;"></textarea>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div style="margin-top: 14px; padding-top: 12px; border-top: 1.5px solid var(--border); display: flex; gap: 8px;">
+        <button class="btn-primary" onclick="copyDoctorReportFromModal()" style="flex: 1; padding: 12px 14px; border-radius: 12px; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; background: var(--primary); color: white; border: none; cursor: pointer;">
+          <i class="fa-solid fa-copy"></i>
+          <span id="txt-btn-copy-doc-report">Panoya Kopyala (WhatsApp / Hekim)</span>
+        </button>
+        <button onclick="closeDoctorReportModal()" style="padding: 12px 18px; border-radius: 12px; background: #F1F5F9; border: 1.5px solid #CBD5E1; color: #475569; font-size: 13px; font-weight: 700; cursor: pointer;">
+          <span id="txt-btn-close-doc-report">Kapat</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

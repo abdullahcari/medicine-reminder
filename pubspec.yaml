@@ -1,0 +1,24 @@
+name: medicine_reminder
+description: "İlaç & Doz Hatırlatıcı (Pill Reminder) - Mobil Programlama Vize Projesi"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_local_notifications: ^17.0.0 # Yerel bildirim planlayıcı
+  timezone: ^0.9.2                    # Yerel saat dilimi hesaplaması
+  sqflite: ^2.3.0                     # Cihaz içi SQLite veri tabanı
+  path: ^1.9.0                        # Dosya yolu yönetimi
+  intl: ^0.19.0                       # Tarih ve saat formatlama
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true

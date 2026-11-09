@@ -1,0 +1,13 @@
+# Miscellaneous
+*.log
+temp_pdf_profile/
+.dart_tool/
+.packages
+build/
+.idea/
+*.iml
+.vscode/
+
+# OS Files
+.DS_Store
+Thumbs.db
